@@ -13,14 +13,13 @@ import java.util.Random;
 public class Main {
 
     public static void main(String[] args) throws Exception{
-        /**
-         *  For a problem to be solvable:
-         *    count(0,prob) % 2 == count(0,sol) %2
-         */
+
         Random rnd = new Random(78);
 
-        Centrales centrales = new Centrales({1, 2, 3}, rnd.nextInt());
-        Clientes clientes = new Clientes(20, {0.4, 0.4, 0.2}, 0.1, rnd.nextInt());
+        int[] tipos_centrales = int[] {1, 2, 3};
+        int[] prop_clientes = int[] {0.4, 0.4, 0.2}; // Ha de sumar 1.0
+        Centrales centrales = new Centrales(tipos_centrales, rnd.nextInt());
+        Clientes clientes = new Clientes(20, prop_clientes, 0.1, rnd.nextInt());
         int [] prob = new int []{1 ,0, 1, 1, 0};
         int [] sol = new int[]{1, 1, 0, 1, 0};
 
