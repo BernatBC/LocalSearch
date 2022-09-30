@@ -23,7 +23,8 @@ public class Main {
         Clientes clientes = new Clientes(20, prop_clientes, 0.1, rnd.nextInt());
 
         // 
-        int [] prob = new int []{1 ,0, 1, 1, 0};
+        //int [] prob = new int []{1 ,0, 1, 1, 0};
+        int [] prob = initialState(centrales, clientes, rnd);
 
         EnergyBoard board = new EnergyBoard(prob, clientes, centrales);
 
@@ -49,6 +50,37 @@ public class Main {
 	// method getGoalState of class Search
 
     }
+        //Genera solució inicial on cada client garantit està assignat a una central de manera aleatòria. Els clients garantitzats no estan assignats tenen marcats central -1.
+        private int[] initialState(Centrales centrales, Clientes clientes, Random rnd) {
+            int[] sol = new int[clientes.length];
+            for (int i = 0; i < clientes.length; ++i) {
+                if (clientes[i].getTipo() == Cliente.GARANTIZADO) {
+                    int n_central = rnd.nextInt()%centrales.lenght;
+                    while (n_central /*Falta comprovar disponibilitat central*/) {
+                        n_central = rnd.nextInt()%centrales.lenght;
+                    }
+                    sol[i] = n_central;
+                }
+                else sol[i] = -1;
+            }
+            return sol;
+        }
+
+        //Genera solució inicial on cada client està assignat a una central de manera aleatòria, els clients no garantitzats tenen possibilitats de no estar assignades a cap
+        private int[] initialState2(Centrales centrales, Clientes clientes, Random rnd) {
+            int[] sol = new int[clientes.length];
+            for (int i = 0; i < clientes.length; ++i) {
+                if (clientes[i].getTipo() == Cliente.GARANTIZADO || rnd.nextInt()%2 == 0) {
+                    int n_central = rnd.nextInt()%centrales.lenght;
+                    while (n_central /*Falta comprovar disponibilitat central*/) {
+                        n_central = rnd.nextInt()%centrales.lenght;
+                    }
+                    sol[i] = n_central;
+                }
+                else sol[i] = -1;
+            }
+            return sol;
+        }
 
         private static void printInstrumentation(Properties properties) {
         Iterator keys = properties.keySet().iterator();
