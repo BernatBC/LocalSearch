@@ -54,13 +54,7 @@ public class Main {
         private int[] initialState(Centrales centrales, Clientes clientes, Random rnd) {
             int[] sol = new int[clientes.length];
             for (int i = 0; i < clientes.length; ++i) {
-                if (clientes[i].getTipo() == Cliente.GARANTIZADO) {
-                    int n_central = rnd.nextInt()%centrales.lenght;
-                    while (n_central /*Falta comprovar disponibilitat central*/) {
-                        n_central = rnd.nextInt()%centrales.lenght;
-                    }
-                    sol[i] = n_central;
-                }
+                if (clientes[i].getTipo() == Cliente.GARANTIZADO) sol[i] = randomCentral(centrales, clientes[i], rnd);
                 else sol[i] = -1;
             }
             return sol;
@@ -70,16 +64,19 @@ public class Main {
         private int[] initialState2(Centrales centrales, Clientes clientes, Random rnd) {
             int[] sol = new int[clientes.length];
             for (int i = 0; i < clientes.length; ++i) {
-                if (clientes[i].getTipo() == Cliente.GARANTIZADO || rnd.nextInt()%2 == 0) {
-                    int n_central = rnd.nextInt()%centrales.lenght;
-                    while (n_central /*Falta comprovar disponibilitat central*/) {
-                        n_central = rnd.nextInt()%centrales.lenght;
-                    }
-                    sol[i] = n_central;
-                }
+                if (clientes[i].getTipo() == Cliente.GARANTIZADO || rnd.nextInt()%2 == 0) sol[i] = randomCentral(centrales, clientes[i], rnd);
                 else sol[i] = -1;
             }
             return sol;
+        }
+
+        //Retorna una central aleatoria on el client es pot assignar
+        private int randomCentral(Centrales centrales, Cliente c, Random rnd) {
+            int n_central = rnd.nextInt()%centrales.lenght;
+            while (n_central /*Falta comprovar disponibilitat central*/) {
+                n_central = rnd.nextInt()%centrales.lenght;
+            }
+            return  n_central;
         }
 
         private static void printInstrumentation(Properties properties) {
