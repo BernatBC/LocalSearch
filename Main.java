@@ -16,8 +16,8 @@ public class Main {
 
         Random rnd = new Random(78);
 
-        int[] tipos_centrales = int[] {1, 2, 3};
-        int[] prop_clientes = int[] {0.4, 0.4, 0.2}; // Ha de sumar 1.0
+        int[] tipos_centrales = new int[] {1, 2, 3};
+        int[] prop_clientes = new int[] {0.4, 0.4, 0.2}; // Ha de sumar 1.0
         Centrales centrales = new Centrales(tipos_centrales, rnd.nextInt());
         Clientes clientes = new Clientes(20, prop_clientes, 0.1, rnd.nextInt());
         int [] prob = new int []{1 ,0, 1, 1, 0};
