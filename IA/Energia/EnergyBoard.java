@@ -4,12 +4,16 @@ import java.lang.Math;
 public class EnergyBoard {
 
     private int[] state;
-    static private Clientes[] clientes;
-    static private Centrales[] centrales;
+    static private Clientes clientes;
+    static private Centrales centrales;
 
-    public EnergyBoard(int[] init, Clientes[] cli, Centrales[] centr){
+    /**
+     *  Construct a new EnergyBoard, given an optional initial state, the array of clients and array of 
+      */
+    public EnergyBoard(int[] init, Clientes cli, Centrales centr){
         this.state = new int[init.length];
-        this.clientes = cli.clone(); 
+        this.clientes = cli.clone();
+        this.centrales = centr.clone(); 
 
         for (int k = 0; k < init.length; ++k)
             this.state[k] = init[k]; 
@@ -91,26 +95,26 @@ public class EnergyBoard {
         state[c2] = k;
     }
 
-        //Genera solució inicial on cada client garantit està assignat a una central de manera aleatòria. Els clients garantitzats no estan assignats tenen marcats central -1.
-        public void initialState(Random rnd) {
-            for (int i = 0; i < clientes.length; ++i) {
-                if (clientes[i].getTipo() == Cliente.GARANTIZADO) state[i] = randomCentral(i, rnd);
-            }
+    //Genera solució inicial on cada client garantit està assignat a una central de manera aleatòria. Els clients garantitzats no estan assignats tenen marcats central -1.
+    public void initialState(Random rnd) {
+        for (int i = 0; i < clientes.length; ++i) {
+            if (clientes[i].getTipo() == Cliente.GARANTIZADO) state[i] = randomCentral(i, rnd);
         }
+    }
 
-        //Genera solució inicial on cada client està assignat a una central de manera aleatòria, els clients no garantitzats tenen possibilitats de no estar assignades a cap
-        public void initialState2(Random rnd) {
-            for (int i = 0; i < clientes.length; ++i) {
-                if (clientes[i].getTipo() == Cliente.GARANTIZADO || rnd.nextInt()%2 == 0) state[i] = randomCentral(i, rnd);
-            }
+    //Genera solució inicial on cada client està assignat a una central de manera aleatòria, els clients no garantitzats tenen possibilitats de no estar assignades a cap
+    public void initialState2(Random rnd) {
+        for (int i = 0; i < clientes.length; ++i) {
+            if (clientes[i].getTipo() == Cliente.GARANTIZADO || rnd.nextInt()%2 == 0) state[i] = randomCentral(i, rnd);
         }
+    }
 
-        //Retorna una central aleatoria on el client es pot assignar
-        private int randomCentral(int c, Random rnd) {
-            int n_central = rnd.nextInt()%centrales.lenght;
-            while (!canAssign(c, n_central)) {
-                n_central = rnd.nextInt()%centrales.lenght;
-            }
-            assign(c, n_central);
+    //Retorna una central aleatoria on el client es pot assignar
+    private int randomCentral(int c, Random rnd) {
+        int n_central = rnd.nextInt()%centrales.lenght;
+        while (!canAssign(c, n_central)) {
+            n_central = rnd.nextInt()%centrales.lenght;
         }
+        assign(c, n_central);
+    }
 }

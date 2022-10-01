@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+import java.util.Arrays;
 
 public class Main {
 
@@ -34,9 +35,9 @@ public class Main {
 
         // Create the Problem object
         Problem p = new  Problem(board,
-                                new ProbIA5SuccesorFunction(),
-                                new ProbIA5GoalTest(),
-                                new ProbIA5HeuristicFunction());
+                                new EnergySuccessorFunction(),
+                                new EnergyGoalTest(),
+                                new Energy5HeuristicFunction());
 
         // Instantiate the search algorithm
 	// AStarSearch(new GraphSearch()) or IterativeDeepeningAStarSearch()
