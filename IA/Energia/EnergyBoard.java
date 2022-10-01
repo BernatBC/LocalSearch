@@ -11,7 +11,7 @@ public class EnergyBoard {
      * Construct a new EnergyBoard, given an optional initial state, the costumers and the power plants
      *
      * @exception ArithmeticException the length of the initial state array is different to the number of costumers.
-     * @param init the initial state of the board. If init[i] = -1 that means costumer <i>i<i> won't have any power plant assigned.
+     * @param init the initial state of the board. If init[i] = -1 that means costumer <i>i</i> won't have any power plant assigned.
      * @param cli the Clientes object which represents the array of costumers to serve.
      * @param centr the Centrales object which represents the array of power plants available to us.
      */
@@ -35,28 +35,46 @@ public class EnergyBoard {
     /**
      * Assign (or deassign) a power plant to a costumer
      * 
-     * This operation can only be (...) to be continued
+     * In order to perform this function it is highly advised to first check if it can legally be
+     * executed with the <i>canAssign</i> boolean function (see below).
      *
+     * @param c Costumer ID (offset in the state array)
+     * @param k Power plant ID (offset in the power plant <i>centrales</i> array)
+     * 
+     * <i>Note that, as always, if k == -1 then we want to remove any power plant currently assigned</i>
      */
-
     public void assign(int c, int k){
         // Asignar la central k (posiblemente k = -1 (quitar central) ) al cliente c 
-        // PRE: El cliente c no tiene central si se va a asignar, o tiene si se va a desasignar 
-        // PRE: El cliente es no garantizado
         state[c] = k;
     }
 
+    /**
+     * Check if we can assign a power plant to a costumer
+     * 
+     * The function will return <b>true</b> unless:
+     *
+     * - The costumer is GARANTIZADO and we will deassign a power plant
+     * - The new power plant won't have enough wattage to satisfy all demand
+     * - The current costumer has no power plant assign and we will try to deassign a plant
+     * - The costumer already has assigned the plant we want to assign
+     * 
+     * @param c Costumer ID (offset in the state array)
+     * @param k Power plant ID (offset in the power plant <i>centrales</i> array)+
+     *
+     * <i>Note that, as alwats, if k == -1 then we want to remove any power plant currently assigned</i>
+     */
     public boolean canAssign(int c, int k){
-        if (clientes[c].getTipo() == Clientes.GARANTIZADO) return false;
+        if (clientes[c].getTipo() == Clientes.GARANTIZADO && k == -1) return false;
 
+        if (state[c] == k) return false;
         if (state[c] != -1 && k == -1) return true;
 
         double energyleft = energyLeft(k);
 
         if (energyleft < clientes[c].getConsumo()*(1. + VEnergia.getPerdida(getDistance(c, k))))
             return false;
-        else 
-            return true;
+        
+        return true;
     }
 
     public double energyLeft(int k){
