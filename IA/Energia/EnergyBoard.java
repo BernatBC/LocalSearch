@@ -8,9 +8,17 @@ public class EnergyBoard {
     static private Centrales centrales;
 
     /**
-     *  Construct a new EnergyBoard, given an optional initial state, the array of clients and array of 
-      */
+     * Construct a new EnergyBoard, given an optional initial state, the costumers and the power plants
+     *
+     * @exception ArithmeticException the length of the initial state array is different to the number of costumers.
+     * @param init the initial state of the board. If init[i] = -1 that means costumer <i>i<i> won't have any power plant assigned.
+     * @param cli the Clientes object which represents the array of costumers to serve.
+     * @param centr the Centrales object which represents the array of power plants available to us.
+     */
     public EnergyBoard(int[] init, Clientes cli, Centrales centr){
+
+        if (init.length != cli.length) throw new ArithmeticException("The length of the state array should equal the number of costumers");
+        
         this.state = new int[init.length];
         this.clientes = cli.clone();
         this.centrales = centr.clone(); 
@@ -22,6 +30,14 @@ public class EnergyBoard {
     public EnergyBoard getClone(){
         return (EnergyBoard) this.clone();
     }
+
+
+    /**
+     * Assign (or deassign) a power plant to a costumer
+     * 
+     * This operation can only be (...) to be continued
+     *
+     */
 
     public void assign(int c, int k){
         // Asignar la central k (posiblemente k = -1 (quitar central) ) al cliente c 
