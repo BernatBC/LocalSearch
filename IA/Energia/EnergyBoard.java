@@ -19,12 +19,12 @@ public class EnergyBoard {
 
         if (init.length != cli.length) throw new ArithmeticException("The length of the state array should equal the number of costumers");
         
-        this.state = new int[init.length];
-        this.clientes = cli.clone();
-        this.centrales = centr.clone(); 
+        state = new int[init.length];
+        clientes = cli.clone();
+        centrales = centr.clone(); 
 
         for (int k = 0; k < init.length; ++k)
-            this.state[k] = init[k]; 
+            state[k] = init[k]; 
     }
 
     public EnergyBoard getClone(){
