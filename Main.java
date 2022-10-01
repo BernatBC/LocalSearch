@@ -22,11 +22,15 @@ public class Main {
         Centrales centrales = new Centrales(tipos_centrales, rnd.nextInt());
         Clientes clientes = new Clientes(20, prop_clientes, 0.1, rnd.nextInt());
 
-        // 
-        //int [] prob = new int []{1 ,0, 1, 1, 0};
-        int [] prob = initialState(centrales, clientes, rnd);
+        //Inicialitzar assigacions buides
+        int [] initial = new int [clientes.length];
+        Arrays.fill(initial, -1);
 
-        EnergyBoard board = new EnergyBoard(prob, clientes, centrales);
+        EnergyBoard board = new EnergyBoard(initial, clientes, centrales);
+
+        //Inicialitzar solucions amb dues possibles estrategies
+        board.initialState(rnd);
+        //board.initialState2(rnd);
 
         // Create the Problem object
         Problem p = new  Problem(board,
@@ -50,35 +54,6 @@ public class Main {
 	// method getGoalState of class Search
 
     }
-        //Genera solució inicial on cada client garantit està assignat a una central de manera aleatòria. Els clients garantitzats no estan assignats tenen marcats central -1.
-        private int[] initialState(Centrales centrales, Clientes clientes, Random rnd) {
-            int[] sol = new int[clientes.length];
-            for (int i = 0; i < clientes.length; ++i) {
-                if (clientes[i].getTipo() == Cliente.GARANTIZADO) sol[i] = randomCentral(centrales, clientes[i], rnd);
-                else sol[i] = -1;
-            }
-            return sol;
-        }
-
-        //Genera solució inicial on cada client està assignat a una central de manera aleatòria, els clients no garantitzats tenen possibilitats de no estar assignades a cap
-        private int[] initialState2(Centrales centrales, Clientes clientes, Random rnd) {
-            int[] sol = new int[clientes.length];
-            for (int i = 0; i < clientes.length; ++i) {
-                if (clientes[i].getTipo() == Cliente.GARANTIZADO || rnd.nextInt()%2 == 0) sol[i] = randomCentral(centrales, clientes[i], rnd);
-                else sol[i] = -1;
-            }
-            return sol;
-        }
-
-        //Retorna una central aleatoria on el client es pot assignar
-        private int randomCentral(Centrales centrales, Cliente c, Random rnd) {
-            int n_central = rnd.nextInt()%centrales.lenght;
-            while (n_central /*Falta comprovar disponibilitat central*/) {
-                n_central = rnd.nextInt()%centrales.lenght;
-            }
-            return  n_central;
-        }
-
         private static void printInstrumentation(Properties properties) {
         Iterator keys = properties.keySet().iterator();
         while (keys.hasNext()) {

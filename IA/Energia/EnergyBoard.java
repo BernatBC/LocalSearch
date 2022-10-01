@@ -90,4 +90,27 @@ public class EnergyBoard {
         state[c1] = state[c2];
         state[c2] = k;
     }
+
+        //Genera solució inicial on cada client garantit està assignat a una central de manera aleatòria. Els clients garantitzats no estan assignats tenen marcats central -1.
+        public void initialState(Random rnd) {
+            for (int i = 0; i < clientes.length; ++i) {
+                if (clientes[i].getTipo() == Cliente.GARANTIZADO) state[i] = randomCentral(i, rnd);
+            }
+        }
+
+        //Genera solució inicial on cada client està assignat a una central de manera aleatòria, els clients no garantitzats tenen possibilitats de no estar assignades a cap
+        public void initialState2(Random rnd) {
+            for (int i = 0; i < clientes.length; ++i) {
+                if (clientes[i].getTipo() == Cliente.GARANTIZADO || rnd.nextInt()%2 == 0) state[i] = randomCentral(i, rnd);
+            }
+        }
+
+        //Retorna una central aleatoria on el client es pot assignar
+        private int randomCentral(int c, Random rnd) {
+            int n_central = rnd.nextInt()%centrales.lenght;
+            while (!canAssign(c, n_central)) {
+                n_central = rnd.nextInt()%centrales.lenght;
+            }
+            assign(c, n_central);
+        }
 }
