@@ -4,8 +4,10 @@ import java.lang.Math;
 public class EnergyBoard {
 
     private int[] state;
+    private int[] clientsXcentral;
     static private Clientes clientes;
     static private Centrales centrales;
+    private double benefit;
 
     /**
      * Construct a new EnergyBoard, given an optional initial state, the costumers and the power plants
@@ -24,9 +26,17 @@ public class EnergyBoard {
         centrales = centr.clone(); 
 
         for (int k = 0; k < init.length; ++k)
-            state[k] = init[k]; 
+            state[k] = init[k];
+
     }
 
+    /**
+     * Clone an EnergyBoard
+     * 
+     * This operation returns a clone of the EnergyBoard.
+     * 
+     * <b>Important: Do not use the inherited .clone() for this operation. It won't work. Use this method instead.</b>
+     */
     public EnergyBoard getClone(){
         return (EnergyBoard) this.clone();
     }
@@ -59,7 +69,9 @@ public class EnergyBoard {
      * - The costumer already has assigned the plant we want to assign
      * 
      * @param c Costumer ID (offset in the state array)
-     * @param k Power plant ID (offset in the power plant <i>centrales</i> array)+
+     * @param k Power plant ID (offset in the power plant <i>centrales</i> array)
+     *
+     * @return A boolean whether we can assign the power plant to the costumer legally
      *
      * <i>Note that, as alwats, if k == -1 then we want to remove any power plant currently assigned</i>
      */
@@ -77,6 +89,16 @@ public class EnergyBoard {
         return true;
     }
 
+
+    /**
+     * Calculate the amount of wattage left for a power plant
+     * 
+     * The function will return a double representing the amount of wattage the power plant has left to serve.
+     *
+     * @param k Power plant ID (offset in the power plant <i>centrales</i> array) 
+     *
+     * @return A double representing the amount of energy, in Watts, the power plant has left
+     */
     public double energyLeft(int k){
         double eIni = centrales[k].getProduccion();
         
@@ -89,6 +111,16 @@ public class EnergyBoard {
         return eIni;
     }
 
+    /**
+     * Calculate the distance from a costumer to a power plant
+     * 
+     * This function will return a double representing the distance, in Kilometers, from a costumer to a power plant
+     *
+     * @param c Costumer ID (offset in the state array)
+     * @param k Power plant ID (offset in the power plant <i>centrales</i> array)
+     * 
+     * @return A double representing the distance in Km. from costumer <i>c</i> to power plant <i>k</i>
+     */
     public double getDistance(int c, int k){
         double cx = clientes[c].getCoordX();
         double cy = clientes[c].getCoordY();
@@ -120,19 +152,40 @@ public class EnergyBoard {
         return true;
     }
 
+
     public void swap(int c1, int c2){
         // El client c1 passarà a tenir la central de c2 i el client c2 passarà a tenir la central del client c1
         // És possible que c1 o c2 no tinguin central, pero almenys una n'ha de tenir
         // central de c1 != central de c2,   s'han de seguir complint totes les restriccions de les solucions
+
+        // Actualitzem benefici
+
+        // Fem el swap
         int k = state[c1];
         state[c1] = state[c2];
         state[c2] = k;
+
+    }
+
+    
+    public double getHeuristic(){
+        return benefit;
     }
 
     //Genera solució inicial on cada client garantit està assignat a una central de manera aleatòria. Els clients garantitzats no estan assignats tenen marcats central -1.
     public void initialState(Random rnd) {
         for (int i = 0; i < clientes.length; ++i) {
-            if (clientes[i].getTipo() == Cliente.GARANTIZADO) state[i] = randomCentral(i, rnd);
+
+            if (clientes[i].getTipo() == Cliente.GARANTIZADO){
+                state[i] = randomCentral(i, rnd);
+
+                if (++clientsXcentral[state[i]] == 1){
+                    benefici += VEnergia.getCosteParada(centrales[state[i]].getTipo());
+                    benefici -= (VEnergia.getCosteMarcha(centrales[state[i]].getTipo()) + centrales[state[i]].getProduccion()*VEnergia.getCosteProduccionMW(centrales[state[i]].getTipo()));
+                }
+
+                //benefici += cliente[i].getConsumo() * cliente[i].getContrato()
+            } 
         }
     }
 
