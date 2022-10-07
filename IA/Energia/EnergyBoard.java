@@ -28,6 +28,10 @@ public class EnergyBoard {
         for (int k = 0; k < init.length; ++k)
             state[k] = init[k];
 
+        benefici = 0.0;
+        for (int k = 0; k < centrales.length; ++k){
+            benefici -=  VEnergia.getCosteParada(centrales[k].getTipo());
+        }
     }
 
     /**
@@ -55,7 +59,40 @@ public class EnergyBoard {
      */
     public void assign(int c, int k){
         // Asignar la central k (posiblemente k = -1 (quitar central) ) al cliente c 
+        int ant = state[c];
         state[c] = k;
+
+        if (k == -1){
+            benefici -= clientes[c].getConsumo() * VEnergia.getTarifaClienteNoGarantizada(clientes[c].getTipo());
+            benefici -= VEnergia.getTarifaClientePenalizacion(clientes[c].getTipo()) * clientes[c].getConsumo();
+            
+            if (--clientsXcentral[ant] == 0){
+                benefici -= VEnergia.getCosteParada(centrales[ant].getTipo());
+                benefici += (VEnergia.getCosteMarcha(centrales[ant].getTipo()) + centrales[ant].getProduccion()*VEnergia.getCosteProduccionMW(centrales[ant].getTipo()));
+            }
+        } 
+        else if (ant == -1) {
+            benefici += clientes[c].getConsumo() * VEnergia.getTarifaClienteNoGarantizada(clientes[c].getTipo());
+            benefici += VEnergia.getTarifaClientePenalizacion(clientes[c].getTipo()) * clientes[c].getConsumo();
+
+            if (++clientsXcentral[k] == 1){
+                benefici += VEnergia.getCosteParada(centrales[k].getTipo());
+                benefici -= (VEnergia.getCosteMarcha(centrales[k].getTipo()) + centrales[k].getProduccion()*VEnergia.getCosteProduccionMW(centrales[k].getTipo()));
+            }
+
+        } else {
+            // El cliente puede estar garantizado o no
+            if (--clientsXcentral[ant] == 0){
+                benefici -= VEnergia.getCosteParada(centrales[ant].getTipo());
+                benefici += (VEnergia.getCosteMarcha(centrales[ant].getTipo()) + centrales[ant].getProduccion()*VEnergia.getCosteProduccionMW(centrales[ant].getTipo()));
+            }
+
+            if (++clientsXcentral[k] == 1){
+                benefici += VEnergia.getCosteParada(centrales[k].getTipo());
+                benefici -= (VEnergia.getCosteMarcha(centrales[k].getTipo()) + centrales[k].getProduccion()*VEnergia.getCosteProduccionMW(centrales[k].getTipo()));
+            }
+
+        }
     }
 
     /**
@@ -158,25 +195,43 @@ public class EnergyBoard {
         // És possible que c1 o c2 no tinguin central, pero almenys una n'ha de tenir
         // central de c1 != central de c2,   s'han de seguir complint totes les restriccions de les solucions
 
-        // Actualitzem benefici
+        int k1 = state[c1];
+        int k2 = state[c2];
+        state[c1] = k2;
+        state[c2] = k1;
 
-        // Fem el swap
-        int k = state[c1];
-        state[c1] = state[c2];
-        state[c2] = k;
+        if (k1 != -1 && k2 != -1) return;
+
+        if (k1 == -1){
+            benefici += clientes[c1].getConsumo() * VEnergia.getTarifaClienteNoGarantizada(clientes[c1].getTipo());
+            benefici += VEnergia.getTarifaClientePenalizacion(clientes[c1].getTipo()) * clientes[c1].getConsumo();
+
+            benefici -= clientes[c2].getConsumo() * VEnergia.getTarifaClienteNoGarantizada(clientes[c2].getTipo());
+            benefici -= VEnergia.getTarifaClientePenalizacion(clientes[c2].getTipo()) * clientes[c2].getConsumo();
+            return;
+        }
+
+        if (k2 == -1){
+            benefici -= clientes[c1].getConsumo() * VEnergia.getTarifaClienteNoGarantizada(clientes[c1].getTipo());
+            benefici -= VEnergia.getTarifaClientePenalizacion(clientes[c1].getTipo()) * clientes[c1].getConsumo();
+
+            benefici += clientes[c2].getConsumo() * VEnergia.getTarifaClienteNoGarantizada(clientes[c2].getTipo());
+            benefici += VEnergia.getTarifaClientePenalizacion(clientes[c2].getTipo()) * clientes[c2].getConsumo();
+            return;
+        }
 
     }
 
     
     public double getHeuristic(){
-        return benefit;
+        return -benefit;
     }
 
     //Genera solució inicial on cada client garantit està assignat a una central de manera aleatòria. Els clients garantitzats no estan assignats tenen marcats central -1.
     public void initialState(Random rnd) {
         for (int i = 0; i < clientes.length; ++i) {
 
-            if (clientes[i].getTipo() == Cliente.GARANTIZADO){
+            if (clientes[i].getContrato() == Cliente.GARANTIZADO){
                 state[i] = randomCentral(i, rnd);
 
                 if (++clientsXcentral[state[i]] == 1){
@@ -184,15 +239,28 @@ public class EnergyBoard {
                     benefici -= (VEnergia.getCosteMarcha(centrales[state[i]].getTipo()) + centrales[state[i]].getProduccion()*VEnergia.getCosteProduccionMW(centrales[state[i]].getTipo()));
                 }
 
-                //benefici += cliente[i].getConsumo() * cliente[i].getContrato()
-            } 
+                benefici += clientes[i].getConsumo() * VEnergia.getTarifaClienteGarantizada(clientes[i].getTipo());
+            }
+
+            else benfici -= VEnergia.getTarifaClientePenalizacion(clientes[i].getTipo()) * clientes[i].getConsumo();
         }
     }
 
     //Genera solució inicial on cada client està assignat a una central de manera aleatòria, els clients no garantitzats tenen possibilitats de no estar assignades a cap
     public void initialState2(Random rnd) {
         for (int i = 0; i < clientes.length; ++i) {
-            if (clientes[i].getTipo() == Cliente.GARANTIZADO || rnd.nextInt()%2 == 0) state[i] = randomCentral(i, rnd);
+            if (clientes[i].getContrato() == Cliente.GARANTIZADO || rnd.nextInt()%2 == 0){
+                state[i] = randomCentral(i, rnd);
+
+                if (++clientsXcentral[state[i]] == 1){
+                    benefici += VEnergia.getCosteParada(centrales[state[i]].getTipo());
+                    benefici -= (VEnergia.getCosteMarcha(centrales[state[i]].getTipo()) + centrales[state[i]].getProduccion()*VEnergia.getCosteProduccionMW(centrales[state[i]].getTipo()));
+                }
+
+                if (clientes[i].getContrato() == Cliente.GARANTIZADO) benefici += clientes[i].getConsumo() * VEnergia.getTarifaClienteGarantizada(clientes[i].getTipo());
+                else benefici += clientes[i].getConsumo() * VEnergia.getTarifaClienteNoGarantizada(clientes[i].getTipo());
+
+            } else benfici -= VEnergia.getTarifaClientePenalizacion(clientes[i].getTipo()) * clientes[i].getConsumo();
         }
     }
 
