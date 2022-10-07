@@ -24,11 +24,24 @@ public class EnergyBoard {
         state = new int[init.length];
         clientes = cli.clone();
         centrales = centr.clone(); 
-
-        for (int k = 0; k < init.length; ++k)
-            state[k] = init[k];
-
+        clientsXcentral = new int [centrales.length];
+        Arrays.fill(clientsXcentral, 0);
         benefici = 0.0;
+
+        for (int c = 0; c < init.length; ++c){
+            state[c] = init[c];
+
+            if (state[c] == -1 && clientes[c].getContrato() == Cliente.NOGARANTIZADO){
+                benefici -= VEnergia.getTarifaClientePenalizacion(clientes[c].getTipo()) * clientes[c].getConsumo();
+
+            } else if (state[c] != -1){
+                if (clientes[c].getContrato() == Cliente.NOGARANTIZADO) benefici += clientes[c].getConsumo() * VEnergia.getTarifaClienteNoGarantizada(clientes[c].getTipo());
+                else benefici += clientes[c].getConsumo() * VEnergia.getTarifaClienteGarantizada(clientes[c].getTipo());
+
+                ++clientsXcentral[state[c]];
+            } 
+        }
+            
         for (int k = 0; k < centrales.length; ++k){
             benefici -=  VEnergia.getCosteParada(centrales[k].getTipo());
         }
