@@ -43,7 +43,11 @@ public class EnergyBoard {
         }
             
         for (int k = 0; k < centrales.length; ++k){
-            benefici -=  VEnergia.getCosteParada(centrales[k].getTipo());
+            if (clientsXcentral[k] == 0){
+                benefici -= VEnergia.getCosteParada(centrales[k].getTipo());
+            } else {
+                benefici += (VEnergia.getCosteMarcha(centrales[k].getTipo()) + centrales[k].getProduccion()*VEnergia.getCosteProduccionMW(centrales[k].getTipo()));
+            }
         }
     }
 
@@ -58,6 +62,26 @@ public class EnergyBoard {
         return (EnergyBoard) this.clone();
     }
 
+    public int getNClients(){
+        return clientes.length;
+    }
+
+    public int getNCentrals(){
+        return centrales.length;
+    }
+
+
+    public int[] getState(){
+        return state.clone();
+    }
+
+    public static Clientes getClientes(){
+        return clientes.clone();
+    }
+
+    public static Centrales getCentrales(){
+        return centrales.clone();
+    }
 
     /**
      * Assign (or deassign) a power plant to a costumer
