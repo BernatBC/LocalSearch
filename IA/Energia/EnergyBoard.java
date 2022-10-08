@@ -1,7 +1,12 @@
 package IA.Energia;
 import java.lang.Math;
+import java.util.Random;
+import java.util.Arrays;
 
 public class EnergyBoard {
+
+    static private int n_clientes = 20;
+    static private int n_centrales = 6;
 
     private int[] state;
     private int[] clientsXcentral;
@@ -19,14 +24,14 @@ public class EnergyBoard {
      */
     public EnergyBoard(int[] init, Clientes cli, Centrales centr){
 
-        if (init.length != cli.length) throw new ArithmeticException("The length of the state array should equal the number of costumers");
+        if (init.length != n_clientes) throw new ArithmeticException("The length of the state array should equal the number of costumers");
         
         state = new int[init.length];
-        clientes = cli.clone();
-        centrales = centr.clone(); 
-        clientsXcentral = new int [centrales.length];
+        clientes = cli;
+        centrales = centr; 
+        clientsXcentral = new int [n_centrales];
         Arrays.fill(clientsXcentral, 0);
-        benefici = 0.0;
+        benefici = 0;
 
         for (int c = 0; c < init.length; ++c){
             state[c] = init[c];
