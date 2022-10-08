@@ -4,8 +4,8 @@ import java.util.*;
 
 public class EnergyBoard {
 
-    static private int n_clientes = 50;
-    static private int n_centrales = 8;
+    static private int n_clientes;
+    static private int n_centrales;
 
     private int[] state;
     private int[] clientsXcentral;
@@ -23,8 +23,11 @@ public class EnergyBoard {
      */
     public EnergyBoard(int[] init, Clientes cli, Centrales centr) throws Exception {
 
-        if (init.length != n_clientes) throw new ArithmeticException("The length of the state array should equal the number of costumers");
+        if (init.length != cli.toArray().length) throw new ArithmeticException("The length of the state array should equal the number of costumers");
         
+        n_clientes = init.length;
+        n_centrales = centr.toArray().length;
+
         state = new int[init.length];
         clientes = cli;
         centrales = centr; 
@@ -279,8 +282,6 @@ public class EnergyBoard {
 
             if (clientes.get(i).getContrato() == Cliente.GARANTIZADO){
                 state[i] = randomCentral(i, rnd);
-
-                //System.out.println("\n Assigned central "+state[i]+" to client "+i+"\n");
 
                 if (++clientsXcentral[state[i]] == 1){
                     benefici += VEnergia.getCosteParada(centrales.get(state[i]).getTipo());

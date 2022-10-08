@@ -14,13 +14,12 @@ import java.util.*;
 
 public class Main {
 
-    static int n_clientes = 50;
-
     public static void main(String[] args) throws Exception{
 
-        Random rnd = new Random(32);
+        Random rnd = new Random(10);
 
-        int[] tipos_centrales = new int[] {3, 2, 3};
+        int n_clientes = 8;
+        int[] tipos_centrales = new int[] {1, 0, 1};
         double[] prop_clientes = new double[] {0.4, 0.4, 0.2}; // Ha de sumar 1.0
 
         Centrales centrales = new Centrales(tipos_centrales, rnd.nextInt());
@@ -33,8 +32,10 @@ public class Main {
         EnergyBoard board = new EnergyBoard(initial, clientes, centrales);
 
         //Inicialitzar solucions amb dues possibles estrategies
-        //board.initialState(rnd);
+        System.out.println("----- ESTAT INICIAL ------");
         board.initialState(rnd);
+        System.out.println(board);
+        System.out.println("\n--- FI ESTAT INICIAL ---");
 
         // Create the Problem object
         Problem p = new  Problem(board,
