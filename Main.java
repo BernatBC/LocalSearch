@@ -14,13 +14,13 @@ import java.util.*;
 
 public class Main {
 
-    static int n_clientes = 5;
+    static int n_clientes = 50;
 
     public static void main(String[] args) throws Exception{
 
-        Random rnd = new Random(100);
+        Random rnd = new Random(32);
 
-        int[] tipos_centrales = new int[] {1, 1, 1};
+        int[] tipos_centrales = new int[] {3, 2, 3};
         double[] prop_clientes = new double[] {0.4, 0.4, 0.2}; // Ha de sumar 1.0
 
         Centrales centrales = new Centrales(tipos_centrales, rnd.nextInt());
@@ -33,8 +33,8 @@ public class Main {
         EnergyBoard board = new EnergyBoard(initial, clientes, centrales);
 
         //Inicialitzar solucions amb dues possibles estrategies
+        //board.initialState(rnd);
         board.initialState(rnd);
-        //board.initialState2(rnd);
 
         // Create the Problem object
         Problem p = new  Problem(board,
@@ -45,6 +45,7 @@ public class Main {
         // Instantiate the search algorithm
 	// AStarSearch(new GraphSearch()) or IterativeDeepeningAStarSearch()
         Search alg = new HillClimbingSearch();
+        //Search alg = new SimulatedAnnealingSearch();
 
         // Instantiate the SearchAgent object
         SearchAgent agent = new SearchAgent(p, alg);
