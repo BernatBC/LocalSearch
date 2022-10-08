@@ -3,8 +3,8 @@ import aima.search.framework.GraphSearch;
 import aima.search.framework.Problem;
 import aima.search.framework.Search;
 import aima.search.framework.SearchAgent;
-import aima.search.informed.AStarSearch;
-import aima.search.informed.IterativeDeepeningAStarSearch;
+import aima.search.informed.HillClimbingSearch;
+import aima.search.informed.SimulatedAnnealingSearch;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -18,7 +18,7 @@ public class Main {
         Random rnd = new Random(78);
 
         int[] tipos_centrales = new int[] {1, 2, 3};
-        int[] prop_clientes = new int[] {0.4, 0.4, 0.2}; // Ha de sumar 1.0
+        double[] prop_clientes = new double[] {0.4, 0.4, 0.2}; // Ha de sumar 1.0
 
         Centrales centrales = new Centrales(tipos_centrales, rnd.nextInt());
         Clientes clientes = new Clientes(20, prop_clientes, 0.1, rnd.nextInt());
@@ -37,11 +37,11 @@ public class Main {
         Problem p = new  Problem(board,
                                 new EnergySuccessorFunction(),
                                 new EnergyGoalTest(),
-                                new Energy5HeuristicFunction());
+                                new EnergyHeuristicFunction());
 
         // Instantiate the search algorithm
 	// AStarSearch(new GraphSearch()) or IterativeDeepeningAStarSearch()
-        Search alg = new AStarSearch(new GraphSearch());
+        Search alg = new HillClimbingSearch();
 
         // Instantiate the SearchAgent object
         SearchAgent agent = new SearchAgent(p, alg);
