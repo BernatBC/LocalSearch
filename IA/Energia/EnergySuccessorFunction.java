@@ -1,11 +1,12 @@
 package IA.Energia;
 
 import aima.search.framework.SuccessorFunction;
-import java.util.List;
+import java.util.*;
+import aima.search.framework.Successor;
 
 public class EnergySuccessorFunction implements SuccessorFunction{
 
-    public List getSuccessors(Object aState){
+    public List getSuccessors(Object aState) {
         ArrayList retVal = new ArrayList();
         EnergyBoard board = (EnergyBoard) aState;
         EnergyHeuristicFunction EHF = new EnergyHeuristicFunction();
@@ -15,35 +16,50 @@ public class EnergySuccessorFunction implements SuccessorFunction{
                 
                 if (!board.canSwap(i, j)) continue;
     
-                EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getClientes(), board.getCentrales());
+                try {
+                    EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getClientes(), board.getCentrales());
+
+                    newBoard.swap(i, j);
     
-                newBoard.swap(i, j);
+                    double v = EHF.getHeuristicValue(newBoard);
+                    String S = "SWAP " + i + " " + j + " Coste("+v+")";
+        
+                    retVal.add(new Successor(S, newBoard));
     
-                int v = EHF.getHeuristicValue(newBoard);
-                String S = "SWAP " + i + " " + j + " Coste("+v+")";
-    
-                retVal.add(new Successor(S, newBoard));
+                } catch (Exception e){
+                    System.out.println(e);
+                }    
             } 
         }
     
         for (int i = 0; i < board.getNClients(); i++){
             if (board.canAssign(i, -1)){
-                EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getClientes(), board.getCentrales());
-                newBoard.assign(i, -1);
-                int v = EHF.getHeuristicValue(newBoard);
-                String S = "DEASSIGN " + i + " Coste("+v+")";
+                try {
+                    EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getClientes(), board.getCentrales());
+                    newBoard.assign(i, -1);
+                    double v = EHF.getHeuristicValue(newBoard);
+                    String S = "DEASSIGN " + i + " Coste("+v+")";
+        
+                    retVal.add(new Successor(S, newBoard));
     
-                retVal.add(new Successor(S, newBoard));
+                } catch (Exception e){
+                    System.out.println(e);
+                }
             }
     
             for (int j = 0; j < board.getNCentrals(); ++j){
                 if (board.canAssign(i, j)){
-                    EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getClientes(), board.getCentrales());
-                    newBoard.assign(i, j);
-                    int v = EHF.getHeuristicValue(newBoard);
-                    String S = "ASSIGN " + i + " to " + j + " Coste("+v+")";
+                    try {
+                        EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getClientes(), board.getCentrales());
+                        newBoard.assign(i, j);
+                        double v = EHF.getHeuristicValue(newBoard);
+                        String S = "ASSIGN " + i + " to " + j + " Coste("+v+")";
+        
+                        retVal.add(new Successor(S, newBoard));
     
-                    retVal.add(new Successor(S, newBoard));
+                    } catch (Exception e){
+                        System.out.println(e);
+                    }
                 }
     
             }
