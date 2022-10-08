@@ -14,13 +14,13 @@ import java.util.*;
 
 public class Main {
 
-    static int n_clientes = 20;
+    static int n_clientes = 5;
 
     public static void main(String[] args) throws Exception{
 
-        Random rnd = new Random(78);
+        Random rnd = new Random(100);
 
-        int[] tipos_centrales = new int[] {1, 2, 3};
+        int[] tipos_centrales = new int[] {1, 1, 1};
         double[] prop_clientes = new double[] {0.4, 0.4, 0.2}; // Ha de sumar 1.0
 
         Centrales centrales = new Centrales(tipos_centrales, rnd.nextInt());

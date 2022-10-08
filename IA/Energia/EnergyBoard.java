@@ -4,8 +4,8 @@ import java.util.*;
 
 public class EnergyBoard {
 
-    static private int n_clientes = 20;
-    static private int n_centrales = 6;
+    static private int n_clientes = 5;
+    static private int n_centrales = 3;
 
     private int[] state;
     private int[] clientsXcentral;
@@ -154,7 +154,7 @@ public class EnergyBoard {
      * <i>Note that, as alwats, if k == -1 then we want to remove any power plant currently assigned</i>
      */
     public boolean canAssign(int c, int k){
-        if (clientes.get(c).getTipo() == Cliente.GARANTIZADO && k == -1) return false;
+        if (clientes.get(c).getContrato() == Cliente.GARANTIZADO && k == -1) return false;
 
         if (state[c] == k) return false;
         if (state[c] != -1 && k == -1) return true;
@@ -178,6 +178,7 @@ public class EnergyBoard {
      * @return A double representing the amount of energy, in Watts, the power plant has left
      */
     public double energyLeft(int k){
+
         double eIni = centrales.get(k).getProduccion();
         
         for (int c = 0; c < n_clientes; ++c){
@@ -214,18 +215,20 @@ public class EnergyBoard {
         int k1 = state[c1]; 
         int k2 = state[c2];
 
-        if (k1 == -1 && clientes.get(c2).getTipo() == Cliente.GARANTIZADO) return false;
-        if (k2 == -1 && clientes.get(c1).getTipo() == Cliente.GARANTIZADO) return false;
+        if (k1 == -1 && clientes.get(c2).getContrato() == Cliente.GARANTIZADO) return false;
+        if (k2 == -1 && clientes.get(c1).getContrato() == Cliente.GARANTIZADO) return false;
 
-        double energyleft1 = energyLeft(k1) - clientes.get(c1).getConsumo()*(1. + VEnergia.getPerdida(getDistance(c1, k1)));
-        if (k1 != -1)
+        if (k1 != -1){
+            double energyleft1 = energyLeft(k1) - clientes.get(c1).getConsumo()*(1. + VEnergia.getPerdida(getDistance(c1, k1)));
             if (energyleft1 < clientes.get(c2).getConsumo()*(1. + VEnergia.getPerdida(getDistance(c2, k1))))
                 return false;
+        }
 
-        double energyleft2 = energyLeft(k2) - clientes.get(c2).getConsumo()*(1. + VEnergia.getPerdida(getDistance(c2, k2)));
-        if (k2 != -1)
+        if (k2 != -1){
+            double energyleft2 = energyLeft(k2) - clientes.get(c2).getConsumo()*(1. + VEnergia.getPerdida(getDistance(c2, k2)));
             if (energyleft2 < clientes.get(c1).getConsumo()*(1. + VEnergia.getPerdida(getDistance(c1, k2))))
                 return false;
+        }
 
         return true;
     }
@@ -275,6 +278,8 @@ public class EnergyBoard {
             if (clientes.get(i).getContrato() == Cliente.GARANTIZADO){
                 state[i] = randomCentral(i, rnd);
 
+                System.out.println("\n Assigned central "+state[i]+" to client "+i+"\n");
+
                 if (++clientsXcentral[state[i]] == 1){
                     benefici += VEnergia.getCosteParada(centrales.get(state[i]).getTipo());
                     benefici -= (VEnergia.getCosteMarcha(centrales.get(state[i]).getTipo()) + centrales.get(state[i]).getProduccion()*VEnergia.getCosteProduccionMW(centrales.get(state[i]).getTipo()));
@@ -286,7 +291,6 @@ public class EnergyBoard {
             else benefici -= VEnergia.getTarifaClientePenalizacion(clientes.get(i).getTipo()) * clientes.get(i).getConsumo();
         }
     }
-
     //Genera solució inicial on cada client està assignat a una central de manera aleatòria, els clients no garantitzats tenen possibilitats de no estar assignades a cap
     public void initialState2(Random rnd) throws Exception {
         for (int i = 0; i < n_clientes; ++i) {
@@ -308,10 +312,36 @@ public class EnergyBoard {
     //Retorna una central aleatoria on el client es pot assignar
     private int randomCentral(int c, Random rnd) {
         int k = rnd.nextInt()%n_centrales;
+        if (k < 0) k = -k;
+
         while (!canAssign(c, k)) {
             k = rnd.nextInt()%n_centrales;
+            if (k < 0) k = -k;
         }
         
         return k;
+    }
+
+    public String toString(){
+        String s = "\nCENTRALES\n";
+        // Where centrals are located
+        for (int k = 0; k < n_centrales; ++k){
+            s += "Central "+k+" (";
+            s += centrales.get(k).getCoordX()+", "+centrales.get(k).getCoordY()+")\n";
+        }
+
+        s += "\nCLIENTES\n";
+
+        for (int c = 0; c < n_clientes; ++c){
+            s += "Cliente "+c+" (";
+            s += clientes.get(c).getCoordX()+", "+clientes.get(c).getCoordY()+")";
+            s += " tiene central " + state[c] + " y es cliente ";
+
+            s += "TIPO " + clientes.get(c).getTipo() + " CONTRATO " + clientes.get(c).getContrato();
+
+            s += "\n";
+        }
+
+        return s;
     }
 }
