@@ -12,6 +12,7 @@ public class EnergyBoard {
     static private Clientes clientes;
     static private Centrales centrales;
     private double benefici;
+    private double energy;
 
     /**
      * Construct a new EnergyBoard, given an optional initial state, the costumers and the power plants
@@ -272,7 +273,19 @@ public class EnergyBoard {
 
     
     public double getHeuristic(){
-        return -benefici;
+        
+        energy = 0.0;
+
+        for (int k = 0; k < n_centrales; ++k) {
+            double en= energyLeft(k);
+            energy += en*en;
+        }
+
+        return energy * (- benefici);
+    }
+
+    public double getBenefici(){
+        return benefici;
     }
 
     //Genera solució inicial on cada client garantit està assignat a una central de manera aleatòria. Els clients garantitzats no estan assignats tenen marcats central -1.
@@ -330,7 +343,16 @@ public class EnergyBoard {
         // Where centrals are located
         for (int k = 0; k < n_centrales; ++k){
             s += "Central "+k+" (";
-            s += centrales.get(k).getCoordX()+", "+centrales.get(k).getCoordY()+")\n";
+            s += centrales.get(k).getCoordX()+", "+centrales.get(k).getCoordY()+")";
+            s += " produce " + centrales.get(k).getProduccion() + "W ";
+
+            try {
+                s += " PARADA = " + (int) VEnergia.getCosteParada(centrales.get(k).getTipo()) + "$ MARCHA = ";
+                s += (int) VEnergia.getCosteMarcha(centrales.get(k).getTipo()) + (int) centrales.get(k).getProduccion()*VEnergia.getCosteProduccionMW(centrales.get(k).getTipo());
+                s += "$\n";
+            } catch (Exception e){
+                System.out.println(e);
+            }
         }
 
         s += "\nCLIENTES\n";
@@ -340,7 +362,7 @@ public class EnergyBoard {
             s += clientes.get(c).getCoordX()+", "+clientes.get(c).getCoordY()+")";
             s += " tiene central " + state[c] + " y es cliente ";
 
-            s += "TIPO " + clientes.get(c).getTipo() + " CONTRATO " + clientes.get(c).getContrato();
+            s += " CONTRATO " + clientes.get(c).getContrato();
 
             s += "\n";
         }

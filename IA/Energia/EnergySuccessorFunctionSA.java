@@ -15,17 +15,17 @@ public class EnergySuccessorFunctionSA implements SuccessorFunction
     
         if (myRandom.nextInt()%2 == 0) {
             //Swap
-            int c1 = myRandom.nextInt(board.getNClients());
-            int c2;
+            int i = myRandom.nextInt(board.getNClients());
+            int j;
             do {
-                c2 = myRandom.nextInt(board.getNClients());
-            } while (!board.canSwap(c1, c2));
+                j = myRandom.nextInt(board.getNClients());
+            } while (!board.canSwap(i, j));
     
             EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getClientes(), board.getCentrales());
     
             newBoard.swap(i, j);
     
-            int v = EHF.getHeuristicValue(newBoard);
+            double v = EHF.getHeuristicValue(newBoard);
             String S = "SWAP " + i + " " + j + " Coste("+v+")";
 
             System.out.println("EXTRA "+S);
@@ -40,15 +40,14 @@ public class EnergySuccessorFunctionSA implements SuccessorFunction
             do {
                 k = myRandom.nextInt(board.getNCentrals() + 1);
                 //Dessasginar
-                if (k == board.getNCentrals) k = -1;
+                if (k == board.getNCentrals()) k = -1;
             } while (!board.canAssign(c, k));
     
             EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getClientes(), board.getCentrales());
             newBoard.assign(c, k);
-            int v = EHF.getHeuristicValue(newBoard);
+            double v = EHF.getHeuristicValue(newBoard);
             String S = "ASSIGN " + c + " to " + k + " Coste("+v+")";
 
-            System.out.println("EXTRA "+S);
     
             retVal.add(new Successor(S, newBoard));
     

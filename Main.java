@@ -16,7 +16,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception{
 
-        Random rnd = new Random(10);
+        Random rnd = new Random(23);
 
         int n_clientes = 8;
         int[] tipos_centrales = new int[] {1, 0, 1};
@@ -45,8 +45,8 @@ public class Main {
 
         // Instantiate the search algorithm
 	// AStarSearch(new GraphSearch()) or IterativeDeepeningAStarSearch()
-        Search alg = new HillClimbingSearch();
-        //Search alg = new SimulatedAnnealingSearch();
+        //Search alg = new HillClimbingSearch();
+        Search alg = new SimulatedAnnealingSearch();
 
         // Instantiate the SearchAgent object
         SearchAgent agent = new SearchAgent(p, alg);
