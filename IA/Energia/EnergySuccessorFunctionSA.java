@@ -21,16 +21,19 @@ public class EnergySuccessorFunctionSA implements SuccessorFunction
                 j = myRandom.nextInt(board.getNClients());
             } while (!board.canSwap(i, j));
     
-            EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getClientes(), board.getCentrales());
-    
-            newBoard.swap(i, j);
-    
-            double v = EHF.getHeuristicValue(newBoard);
-            String S = "SWAP " + i + " " + j + " Coste("+v+")";
+            try {
+                EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getClientes(), board.getCentrales());
 
-            System.out.println("EXTRA "+S);
-    
-            retVal.add(new Successor(S, newBoard));
+                newBoard.swap(i, j);
+
+                double v = EHF.getHeuristicValue(newBoard);
+                String S = "SWAP " + i + " " + j + " HEUR "+v+" BEN " + newBoard.getBenefici() + newBoard.toString();
+
+                retVal.add(new Successor(S, newBoard));
+
+            } catch (Exception e){
+                System.out.println(e);
+            }    
         }
         else {
             //Assign
@@ -43,14 +46,19 @@ public class EnergySuccessorFunctionSA implements SuccessorFunction
                 if (k == board.getNCentrals()) k = -1;
             } while (!board.canAssign(c, k));
     
-            EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getClientes(), board.getCentrales());
-            newBoard.assign(c, k);
-            double v = EHF.getHeuristicValue(newBoard);
-            String S = "ASSIGN " + c + " to " + k + " Coste("+v+")";
+            try {
+                EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getClientes(), board.getCentrales());
+                newBoard.assign(c, k);
+                double v = EHF.getHeuristicValue(newBoard);
+                String S = "ASSIGN CLIENT " + c + " to CENTRAL " + k + " HEUR "+v+" BEN " + newBoard.getBenefici() +  newBoard.toString();
 
-    
-            retVal.add(new Successor(S, newBoard));
-    
+                //System.out.println("EXTRA "+S);
+
+                retVal.add(new Successor(S, newBoard));
+
+            } catch (Exception e){
+                System.out.println(e);
+            }    
         }
     
         return retVal;

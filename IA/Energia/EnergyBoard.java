@@ -281,7 +281,7 @@ public class EnergyBoard {
             energy += en*en;
         }
 
-        return energy * (- benefici);
+        return /*energy*/ - benefici;
     }
 
     public double getBenefici(){
