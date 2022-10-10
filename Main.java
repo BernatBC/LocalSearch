@@ -18,7 +18,7 @@ public class Main {
 
         Random rnd = new Random(43);
 
-        int n_clientes = 8;
+        int n_clientes = 16;
         int[] tipos_centrales = new int[] {2, 1, 1};
         double[] prop_clientes = new double[] {0.4, 0.4, 0.2}; // Ha de sumar 1.0
 
@@ -33,7 +33,7 @@ public class Main {
 
         //Inicialitzar solucions amb dues possibles estrategies
         System.out.println("----- ESTAT INICIAL ------");
-        board.initialState(rnd);
+        board.initialState2(rnd);
         System.out.println(board);
         System.out.println("\n--- FI ESTAT INICIAL ---");
 
@@ -43,8 +43,8 @@ public class Main {
                                 new EnergyGoalTest(),
                                 new EnergyHeuristicFunction());
 
-        //Search alg = new HillClimbingSearch();
-        Search alg = new SimulatedAnnealingSearch();
+        Search alg = new HillClimbingSearch();
+        //Search alg = new SimulatedAnnealingSearch();
 
         SearchAgent agent = new SearchAgent(p, alg);
 

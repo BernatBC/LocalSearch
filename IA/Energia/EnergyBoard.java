@@ -281,7 +281,19 @@ public class EnergyBoard {
             energy += en;
         }
 
-        return energy*(-benefici);
+        double distance = 0.0;
+        
+        for (int c = 0; c < n_clientes; ++c){
+            if (state[c] == -1){
+                // Ho penalitzem fort
+                distance += 1000000;
+                continue;
+            }
+
+            distance += getDistance(c, state[c]);
+        }
+
+        return distance - benefici*0.01 + energy;
     }
 
     public double getBenefici(){
@@ -310,7 +322,7 @@ public class EnergyBoard {
     //Genera solució inicial on cada client està assignat a una central de manera aleatòria, els clients no garantitzats tenen possibilitats de no estar assignades a cap
     public void initialState2(Random rnd) throws Exception {
         for (int i = 0; i < n_clientes; ++i) {
-            if (clientes.get(i).getContrato() == Cliente.GARANTIZADO || rnd.nextInt()%2 == 0){
+            if (clientes.get(i).getContrato() == Cliente.GARANTIZADO || true){
                 state[i] = randomCentral(i, rnd);
 
                 if (++clientsXcentral[state[i]] == 1){
