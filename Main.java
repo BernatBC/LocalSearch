@@ -16,14 +16,14 @@ public class Main {
 
     public static void main(String[] args) throws Exception{
 
-        Random rnd = new Random(43);
+        Random rnd = new Random(7);
 
-        int n_clientes = 16;
-        int[] tipos_centrales = new int[] {2, 1, 1};
-        double[] prop_clientes = new double[] {0.4, 0.4, 0.2}; // Ha de sumar 1.0
+        int n_clientes = 8;
+        int[] tipos_centrales = new int[] {1, 1, 1};
+        double[] prop_clientes = new double[] {0.25, 0.3, 0.45}; // Ha de sumar 1.0
 
-        Centrales centrales = new Centrales(tipos_centrales, rnd.nextInt());
-        Clientes clientes = new Clientes(n_clientes, prop_clientes, 0.1, rnd.nextInt());
+        Centrales centrales = new Centrales(tipos_centrales, 1234);
+        Clientes clientes = new Clientes(n_clientes, prop_clientes, 0.75, 1234);
 
         //Inicialitzar assigacions buides
         int [] initial = new int [n_clientes];
@@ -33,7 +33,7 @@ public class Main {
 
         //Inicialitzar solucions amb dues possibles estrategies
         System.out.println("----- ESTAT INICIAL ------");
-        board.initialState2(rnd);
+        board.initialState(rnd);
         System.out.println(board);
         System.out.println("\n--- FI ESTAT INICIAL ---");
 

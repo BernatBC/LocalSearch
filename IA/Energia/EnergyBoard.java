@@ -12,6 +12,7 @@ public class EnergyBoard {
     static private Clientes clientes;
     static private Centrales centrales;
     private double benefici;
+    private double distance;
     private double energy;
 
     /**
@@ -26,31 +27,43 @@ public class EnergyBoard {
 
         if (init.length != cli.toArray().length) throw new ArithmeticException("The length of the state array should equal the number of costumers");
         
+        // Inicialitzem els nombres de clients i nombres de centrals
         n_clientes = init.length;
         n_centrales = centr.toArray().length;
 
+        // L'estat, representat per una array on state[c] = k <--> El client 'c' està assignat a la central 'k' (o cap si k == -1)
         state = new int[init.length];
         clientes = cli;
-        centrales = centr; 
+        centrales = centr;
+
+        // Array que ens permet conèixer en tot moment quants clients es troben per cada central
         clientsXcentral = new int [n_centrales];
         Arrays.fill(clientsXcentral, 0);
-        benefici = 0;
+        benefici = 0.0;
+        distance = 0.0;
+        energy   = 0.0;
 
         for (int c = 0; c < init.length; ++c){
             state[c] = init[c];
+            distance += getDistance(c, state[c]);
 
             if (state[c] == -1 && clientes.get(c).getContrato() == Cliente.NOGARANTIZADO){
                 benefici -= VEnergia.getTarifaClientePenalizacion(clientes.get(c).getTipo()) * clientes.get(c).getConsumo();
+                
 
             } else if (state[c] != -1){
+                // Guany, hi ha un client consumint
                 if (clientes.get(c).getContrato() == Cliente.NOGARANTIZADO) benefici += clientes.get(c).getConsumo() * VEnergia.getTarifaClienteNoGarantizada(clientes.get(c).getTipo());
                 else benefici += clientes.get(c).getConsumo() * VEnergia.getTarifaClienteGarantizada(clientes.get(c).getTipo());
 
                 ++clientsXcentral[state[c]];
-            } 
+
+            }
         }
             
         for (int k = 0; k < n_centrales; ++k){
+            energy += centrales.get(k).getProduccion();
+
             if (clientsXcentral[k] == 0){
                 benefici -= VEnergia.getCosteParada(centrales.get(k).getTipo());
             } else {
@@ -107,7 +120,12 @@ public class EnergyBoard {
         int ant = state[c];
         state[c] = k;
 
+        distance -= getDistance(c, ant);
+        distance += getDistance(c, k);
+
         if (k == -1){
+            energy += (clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, ant))));
+
             benefici -= clientes.get(c).getConsumo() * VEnergia.getTarifaClienteNoGarantizada(clientes.get(c).getTipo());
             benefici -= VEnergia.getTarifaClientePenalizacion(clientes.get(c).getTipo()) * clientes.get(c).getConsumo();
             
@@ -117,6 +135,8 @@ public class EnergyBoard {
             }
         } 
         else if (ant == -1) {
+            energy -= (clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, k))));
+
             benefici += clientes.get(c).getConsumo() * VEnergia.getTarifaClienteNoGarantizada(clientes.get(c).getTipo());
             benefici += VEnergia.getTarifaClientePenalizacion(clientes.get(c).getTipo()) * clientes.get(c).getConsumo();
 
@@ -127,6 +147,8 @@ public class EnergyBoard {
             }
 
         } else {
+            energy += (clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, ant))));
+            energy -= (clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, k))));
             // El cliente puede estar garantizado o no
             if (--clientsXcentral[ant] == 0){
                 benefici -= VEnergia.getCosteParada(centrales.get(ant).getTipo());
@@ -206,6 +228,8 @@ public class EnergyBoard {
      * @return A double representing the distance in Km. from costumer <i>c</i> to power plant <i>k</i>
      */
     public double getDistance(int c, int k){
+        if (k == -1) return 140.0; // Penalització per no tenir central
+
         double cx = clientes.get(c).getCoordX();
         double cy = clientes.get(c).getCoordY();
         double kx = centrales.get(k).getCoordX();
@@ -249,6 +273,16 @@ public class EnergyBoard {
         state[c1] = k2;
         state[c2] = k1;
 
+        distance -= getDistance(c1, k1);
+        distance -= getDistance(c2, k2);
+        distance += getDistance(c2, k1);
+        distance += getDistance(c1, k2);
+
+        energy += (clientes.get(c1).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c1, k1))));
+        energy += (clientes.get(c2).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c2, k2))));
+        energy -= (clientes.get(c1).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c1, k2))));
+        energy -= (clientes.get(c2).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c2, k1))));
+
         if (k1 != -1 && k2 != -1) return;
 
         if (k1 == -1){
@@ -274,26 +308,14 @@ public class EnergyBoard {
     
     public double getHeuristic(){
         
-        energy = 0.0;
+        /*double energy = 0.0;
 
         for (int k = 0; k < n_centrales; ++k) {
             double en = energyLeft(k);
             energy += en;
-        }
+        }*/
 
-        double distance = 0.0;
-        
-        for (int c = 0; c < n_clientes; ++c){
-            if (state[c] == -1){
-                // Ho penalitzem fort
-                distance += 1000000;
-                continue;
-            }
-
-            distance += getDistance(c, state[c]);
-        }
-
-        return distance - benefici*0.01 + energy;
+        return distance*distance;
     }
 
     public double getBenefici(){
@@ -306,7 +328,13 @@ public class EnergyBoard {
         for (int i = 0; i < n_clientes; ++i) {
 
             if (clientes.get(i).getContrato() == Cliente.GARANTIZADO){
+                
+                distance -= getDistance(i, state[i]);
+
                 state[i] = randomCentral(i, rnd);
+
+                distance += getDistance(i, state[i]);
+                energy -= (clientes.get(i).getConsumo()/(1. - VEnergia.getPerdida(getDistance(i, state[i]))));
 
                 if (++clientsXcentral[state[i]] == 1){
                     benefici += VEnergia.getCosteParada(centrales.get(state[i]).getTipo());
@@ -316,24 +344,27 @@ public class EnergyBoard {
                 benefici += clientes.get(i).getConsumo() * VEnergia.getTarifaClienteGarantizada(clientes.get(i).getTipo());
             }
 
-            else benefici -= VEnergia.getTarifaClientePenalizacion(clientes.get(i).getTipo()) * clientes.get(i).getConsumo();
         }
     }
     //Genera solució inicial on cada client està assignat a una central de manera aleatòria, els clients no garantitzats tenen possibilitats de no estar assignades a cap
     public void initialState2(Random rnd) throws Exception {
         for (int i = 0; i < n_clientes; ++i) {
-            if (clientes.get(i).getContrato() == Cliente.GARANTIZADO || true){
-                state[i] = randomCentral(i, rnd);
+            distance -= getDistance(i, state[i]);
 
-                if (++clientsXcentral[state[i]] == 1){
-                    benefici += VEnergia.getCosteParada(centrales.get(state[i]).getTipo());
-                    benefici -= (VEnergia.getCosteMarcha(centrales.get(state[i]).getTipo()) + centrales.get(state[i]).getProduccion()*VEnergia.getCosteProduccionMW(centrales.get(state[i]).getTipo()));
-                }
+            state[i] = randomCentral(i, rnd);
 
-                if (clientes.get(i).getContrato() == Cliente.GARANTIZADO) benefici += clientes.get(i).getConsumo() * VEnergia.getTarifaClienteGarantizada(clientes.get(i).getTipo());
-                else benefici += clientes.get(i).getConsumo() * VEnergia.getTarifaClienteNoGarantizada(clientes.get(i).getTipo());
+            distance += getDistance(i, state[i]);
+            energy -= (clientes.get(i).getConsumo()/(1. - VEnergia.getPerdida(getDistance(i, state[i]))));
 
-            } else benefici -= VEnergia.getTarifaClientePenalizacion(clientes.get(i).getTipo()) * clientes.get(i).getConsumo();
+
+            if (++clientsXcentral[state[i]] == 1){
+                benefici += VEnergia.getCosteParada(centrales.get(state[i]).getTipo());
+                benefici -= (VEnergia.getCosteMarcha(centrales.get(state[i]).getTipo()) + centrales.get(state[i]).getProduccion()*VEnergia.getCosteProduccionMW(centrales.get(state[i]).getTipo()));
+            }
+
+            if (clientes.get(i).getContrato() == Cliente.GARANTIZADO) benefici += clientes.get(i).getConsumo() * VEnergia.getTarifaClienteGarantizada(clientes.get(i).getTipo());
+            else benefici += clientes.get(i).getConsumo() * VEnergia.getTarifaClienteNoGarantizada(clientes.get(i).getTipo());
+
         }
     }
 
@@ -354,14 +385,14 @@ public class EnergyBoard {
         String s = "\nCENTRALES\n";
         // Where centrals are located
         for (int k = 0; k < n_centrales; ++k){
-            s += "Central "+k+" (";
+            s += "K "+k+" (";
             s += centrales.get(k).getCoordX()+", "+centrales.get(k).getCoordY()+")";
             s += " produce " + centrales.get(k).getProduccion() + "W ";
 
             try {
-                s += " PARADA = " + (int) VEnergia.getCosteParada(centrales.get(k).getTipo()) + "$ MARCHA = ";
-                s += (int) VEnergia.getCosteMarcha(centrales.get(k).getTipo()) + (int) centrales.get(k).getProduccion()*VEnergia.getCosteProduccionMW(centrales.get(k).getTipo());
-                s += "$\n";
+                s += " PARADA = " + (int) VEnergia.getCosteParada(centrales.get(k).getTipo()) + " MARCHA = ";
+                s += (int) VEnergia.getCosteMarcha(centrales.get(k).getTipo()) + centrales.get(k).getProduccion()*VEnergia.getCosteProduccionMW(centrales.get(k).getTipo());
+                s += " TIPO " + centrales.get(k).getTipo() + "\n";
             } catch (Exception e){
                 System.out.println(e);
             }
@@ -370,11 +401,16 @@ public class EnergyBoard {
         s += "\nCLIENTES\n";
 
         for (int c = 0; c < n_clientes; ++c){
-            s += "Cliente "+c+" (";
+            s += "C "+c+" (";
             s += clientes.get(c).getCoordX()+", "+clientes.get(c).getCoordY()+")";
-            s += " tiene central " + state[c] + " y es cliente ";
+            s += " tiene K " + state[c] + " y es ";
 
-            s += " CONTRATO " + clientes.get(c).getContrato();
+            if (clientes.get(c).getContrato() == Cliente.GARANTIZADO) s += " G. ";
+            else s += " NG.";
+
+            s += " DE TIPO " + clientes.get(c).getTipo();
+            s += " CONSUME " + clientes.get(c).getConsumo()+"W";
+            if (state[c] != -1) s += " Y CHUPA " + clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, state[c])))+"W";
 
             s += "\n";
         }
