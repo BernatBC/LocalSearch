@@ -16,10 +16,10 @@ public class Main {
 
     public static void main(String[] args) throws Exception{
 
-        Random rnd = new Random(23);
+        Random rnd = new Random(43);
 
         int n_clientes = 8;
-        int[] tipos_centrales = new int[] {1, 0, 1};
+        int[] tipos_centrales = new int[] {2, 1, 1};
         double[] prop_clientes = new double[] {0.4, 0.4, 0.2}; // Ha de sumar 1.0
 
         Centrales centrales = new Centrales(tipos_centrales, rnd.nextInt());
@@ -43,24 +43,21 @@ public class Main {
                                 new EnergyGoalTest(),
                                 new EnergyHeuristicFunction());
 
-        // Instantiate the search algorithm
-	// AStarSearch(new GraphSearch()) or IterativeDeepeningAStarSearch()
         //Search alg = new HillClimbingSearch();
         Search alg = new SimulatedAnnealingSearch();
 
-        // Instantiate the SearchAgent object
         SearchAgent agent = new SearchAgent(p, alg);
 
-	// We print the results of the search
-        System.out.println();
-        printActions(agent.getActions());
+	    // We print the results of the search
         printInstrumentation(agent.getInstrumentation());
+        EnergyBoard end = (EnergyBoard) alg.getGoalState();
 
-        // You can access also to the goal state using the
-	// method getGoalState of class Search
+        System.out.println(end);
+        System.out.println("HEURISTIC " + end.getHeuristic() + " BENEFIT "+ end.getBenefici());
 
     }
-        private static void printInstrumentation(Properties properties) {
+
+    private static void printInstrumentation(Properties properties) {
         Iterator keys = properties.keySet().iterator();
         while (keys.hasNext()) {
             String key = (String) keys.next();
@@ -68,13 +65,5 @@ public class Main {
             System.out.println(key + " : " + property);
         }
         
-    }
-    
-    private static void printActions(List actions) {
-        for (int i = 0; i < actions.size(); i++) {
-            String action = (String) actions.get(i);
-            System.out.println(action);
-        }
-    }
-    
+    }    
 }

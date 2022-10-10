@@ -277,11 +277,11 @@ public class EnergyBoard {
         energy = 0.0;
 
         for (int k = 0; k < n_centrales; ++k) {
-            double en= energyLeft(k);
-            energy += en*en;
+            double en = energyLeft(k);
+            energy += en;
         }
 
-        return /*energy*/ - benefici;
+        return energy*(-benefici);
     }
 
     public double getBenefici(){
