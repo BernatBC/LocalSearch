@@ -14,7 +14,7 @@ public class EnergyBoard {
     private double benefici;
     private double distance;
     private double energy;
-
+    private double[]  energyleft;
     /**
      * Construct a new EnergyBoard, given an optional initial state, the costumers and the power plants
      *
@@ -36,6 +36,11 @@ public class EnergyBoard {
         clientes = cli;
         centrales = centr;
 
+        // Array que ens diu quant d'energia li queda a cada central
+        // En tot moment energy = sum(energyleft).
+        energyleft = new double[n_centrales];
+        Arrays.fill(energyleft, 0);
+
         // Array que ens permet conèixer en tot moment quants clients es troben per cada central
         clientsXcentral = new int [n_centrales];
         Arrays.fill(clientsXcentral, 0);
@@ -45,6 +50,7 @@ public class EnergyBoard {
 
         for (int c = 0; c < init.length; ++c){
             state[c] = init[c];
+
             distance += getDistance(c, state[c]);
 
             if (state[c] == -1 && clientes.get(c).getContrato() == Cliente.NOGARANTIZADO){
@@ -56,12 +62,17 @@ public class EnergyBoard {
                 if (clientes.get(c).getContrato() == Cliente.NOGARANTIZADO) benefici += clientes.get(c).getConsumo() * VEnergia.getTarifaClienteNoGarantizada(clientes.get(c).getTipo());
                 else benefici += clientes.get(c).getConsumo() * VEnergia.getTarifaClienteGarantizada(clientes.get(c).getTipo());
 
+                energy -= (clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, state[c]))));
+                energyleft[state[c]] -= (clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, state[c]))));
+
                 ++clientsXcentral[state[c]];
 
             }
         }
             
         for (int k = 0; k < n_centrales; ++k){
+
+            energyleft[k] += centrales.get(k).getProduccion();
             energy += centrales.get(k).getProduccion();
 
             if (clientsXcentral[k] == 0){
@@ -125,6 +136,7 @@ public class EnergyBoard {
 
         if (k == -1){
             energy += (clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, ant))));
+            energyleft[ant] += (clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, ant))));
 
             benefici -= clientes.get(c).getConsumo() * VEnergia.getTarifaClienteNoGarantizada(clientes.get(c).getTipo());
             benefici -= VEnergia.getTarifaClientePenalizacion(clientes.get(c).getTipo()) * clientes.get(c).getConsumo();
@@ -136,6 +148,7 @@ public class EnergyBoard {
         } 
         else if (ant == -1) {
             energy -= (clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, k))));
+            energyleft[k] -= (clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, k))));
 
             benefici += clientes.get(c).getConsumo() * VEnergia.getTarifaClienteNoGarantizada(clientes.get(c).getTipo());
             benefici += VEnergia.getTarifaClientePenalizacion(clientes.get(c).getTipo()) * clientes.get(c).getConsumo();
@@ -149,6 +162,9 @@ public class EnergyBoard {
         } else {
             energy += (clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, ant))));
             energy -= (clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, k))));
+
+            energyleft[ant] += (clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, ant))));
+            energyleft[k]   -= (clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, k))));
             // El cliente puede estar garantizado o no
             if (--clientsXcentral[ant] == 0){
                 benefici -= VEnergia.getCosteParada(centrales.get(ant).getTipo());
@@ -186,35 +202,10 @@ public class EnergyBoard {
         if (state[c] == k) return false;
         if (state[c] != -1 && k == -1) return true;
 
-        double energyleft = energyLeft(k);
-
-        if (energyleft < clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, k))))
+        if (energyleft[k] < clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, k))))
             return false;
         
         return true;
-    }
-
-
-    /**
-     * Calculate the amount of wattage left for a power plant
-     * 
-     * The function will return a double representing the amount of wattage the power plant has left to serve.
-     *
-     * @param k Power plant ID (offset in the power plant <i>centrales</i> array) 
-     *
-     * @return A double representing the amount of energy, in Watts, the power plant has left
-     */
-    public double energyLeft(int k){
-
-        double eIni = centrales.get(k).getProduccion();
-        
-        for (int c = 0; c < n_clientes; ++c){
-            if (state[c] != k) continue;
-
-            eIni -= (clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, k))));
-        }
-
-        return eIni;
     }
 
     /**
@@ -248,13 +239,13 @@ public class EnergyBoard {
         if (k2 == -1 && clientes.get(c1).getContrato() == Cliente.GARANTIZADO) return false;
 
         if (k1 != -1){
-            double energyleft1 = energyLeft(k1) + clientes.get(c1).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c1, k1)));
+            double energyleft1 = energyleft[k1] + clientes.get(c1).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c1, k1)));
             if (energyleft1 < clientes.get(c2).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c2, k1))))
                 return false;
         }
 
         if (k2 != -1){
-            double energyleft2 = energyLeft(k2) + clientes.get(c2).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c2, k2)));
+            double energyleft2 = energyleft[k2] + clientes.get(c2).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c2, k2)));
             if (energyleft2 < clientes.get(c1).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c1, k2))))
                 return false;
         }
@@ -278,44 +269,51 @@ public class EnergyBoard {
         distance += getDistance(c2, k1);
         distance += getDistance(c1, k2);
 
-        energy += (clientes.get(c1).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c1, k1))));
-        energy += (clientes.get(c2).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c2, k2))));
-        energy -= (clientes.get(c1).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c1, k2))));
-        energy -= (clientes.get(c2).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c2, k1))));
+        if (k1 != -1 && k2 != -1){
+            energy += (clientes.get(c1).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c1, k1))));
+            energyleft[k1] += (clientes.get(c1).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c1, k1))));
+            energy -= (clientes.get(c2).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c2, k1))));
+            energyleft[k1] -= (clientes.get(c2).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c2, k1))));
+            energy += (clientes.get(c2).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c2, k2))));
+            energyleft[k2] += (clientes.get(c2).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c2, k2))));
+            energy -= (clientes.get(c1).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c1, k2))));
+            energyleft[k2] -= (clientes.get(c1).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c1, k2))));
 
-        if (k1 != -1 && k2 != -1) return;
+        }
 
-        if (k1 == -1){
+        else if (k1 == -1){
+            energy += (clientes.get(c2).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c2, k2))));
+            energyleft[k2] += (clientes.get(c2).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c2, k2))));
+            energy -= (clientes.get(c1).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c1, k2))));
+            energyleft[k2] -= (clientes.get(c1).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c1, k2))));
+
             benefici += clientes.get(c1).getConsumo() * VEnergia.getTarifaClienteNoGarantizada(clientes.get(c1).getTipo());
             benefici += VEnergia.getTarifaClientePenalizacion(clientes.get(c1).getTipo()) * clientes.get(c1).getConsumo();
 
             benefici -= clientes.get(c2).getConsumo() * VEnergia.getTarifaClienteNoGarantizada(clientes.get(c2).getTipo());
             benefici -= VEnergia.getTarifaClientePenalizacion(clientes.get(c2).getTipo()) * clientes.get(c2).getConsumo();
-            return;
         }
 
-        if (k2 == -1){
+        else {
+            // k2 == -1
+            energy += (clientes.get(c1).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c1, k1))));
+            energyleft[k1] += (clientes.get(c1).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c1, k1))));
+            energy -= (clientes.get(c2).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c2, k1))));
+            energyleft[k1] -= (clientes.get(c2).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c2, k1))));
+
             benefici -= clientes.get(c1).getConsumo() * VEnergia.getTarifaClienteNoGarantizada(clientes.get(c1).getTipo());
             benefici -= VEnergia.getTarifaClientePenalizacion(clientes.get(c1).getTipo()) * clientes.get(c1).getConsumo();
 
             benefici += clientes.get(c2).getConsumo() * VEnergia.getTarifaClienteNoGarantizada(clientes.get(c2).getTipo());
             benefici += VEnergia.getTarifaClientePenalizacion(clientes.get(c2).getTipo()) * clientes.get(c2).getConsumo();
-            return;
         }
 
     }
 
     
     public double getHeuristic(){
-        
-        /*double energy = 0.0;
 
-        for (int k = 0; k < n_centrales; ++k) {
-            double en = energyLeft(k);
-            energy += en;
-        }*/
-
-        return distance*distance;
+        return distance*energy*(-benefici);
     }
 
     public double getBenefici(){
@@ -334,6 +332,8 @@ public class EnergyBoard {
                 state[i] = randomCentral(i, rnd);
 
                 distance += getDistance(i, state[i]);
+                
+                energyleft[state[i]] -= (clientes.get(i).getConsumo()/(1. - VEnergia.getPerdida(getDistance(i, state[i]))));
                 energy -= (clientes.get(i).getConsumo()/(1. - VEnergia.getPerdida(getDistance(i, state[i]))));
 
                 if (++clientsXcentral[state[i]] == 1){
@@ -355,7 +355,7 @@ public class EnergyBoard {
 
             distance += getDistance(i, state[i]);
             energy -= (clientes.get(i).getConsumo()/(1. - VEnergia.getPerdida(getDistance(i, state[i]))));
-
+            energyleft[state[i]] -= (clientes.get(i).getConsumo()/(1. - VEnergia.getPerdida(getDistance(i, state[i]))));
 
             if (++clientsXcentral[state[i]] == 1){
                 benefici += VEnergia.getCosteParada(centrales.get(state[i]).getTipo());
