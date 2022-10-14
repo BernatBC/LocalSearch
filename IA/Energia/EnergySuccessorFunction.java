@@ -10,7 +10,8 @@ public class EnergySuccessorFunction implements SuccessorFunction{
         ArrayList retVal = new ArrayList();
         EnergyBoard board = (EnergyBoard) aState;
         EnergyHeuristicFunction EHF = new EnergyHeuristicFunction();
-    
+
+
         for (int i = 0; i < board.getNClients(); i++){
             for (int j = i + 1; j < board.getNClients(); j++){
                 
@@ -22,8 +23,11 @@ public class EnergySuccessorFunction implements SuccessorFunction{
                     newBoard.swap(i, j);
     
                     double v = EHF.getHeuristicValue(newBoard);
-                    String S = "SWAP " + i + " " + j + " HEUR "+v+" BEN " + newBoard.getBenefici() + newBoard.toString();
-    
+                    //String S = "SWAP " + i + " " + j + " HEUR "+v+" BEN " + newBoard.getBenefici() + newBoard.toString();
+                    String S = "SWAP " + i + " " + j + " HEUR "+v+" BEN " + newBoard.getBenefici();
+
+                    System.out.println(S);
+
                     retVal.add(new Successor(S, newBoard));
     
                 } catch (Exception e){
@@ -38,10 +42,10 @@ public class EnergySuccessorFunction implements SuccessorFunction{
                     EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getClientes(), board.getCentrales());
                     newBoard.assign(i, -1);
                     double v = EHF.getHeuristicValue(newBoard);
-                    String S = "DEASSIGN " + i + " HEUR "+v+" BEN " + newBoard.getBenefici() + newBoard.toString();
+                    //String S = "DEASSIGN " + i + " HEUR "+v+" BEN " + newBoard.getBenefici() + newBoard.toString();
+                    String S = "DEASSIGN " + i + " HEUR "+v+" BEN " + newBoard.getBenefici();
+                    System.out.println(S);
 
-                    //System.out.println("EXTRA "+S);
-        
                     retVal.add(new Successor(S, newBoard));
     
                 } catch (Exception e){
@@ -55,10 +59,11 @@ public class EnergySuccessorFunction implements SuccessorFunction{
                         EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getClientes(), board.getCentrales());
                         newBoard.assign(i, j);
                         double v = EHF.getHeuristicValue(newBoard);
-                        String S = "ASSIGN CLIENT " + i + " to CENTRAL " + j + " HEUR "+v+" BEN " + newBoard.getBenefici() +  newBoard.toString();
+                        //String S = "ASSIGN CLIENT " + i + " to CENTRAL " + j + " HEUR "+v+" BEN " + newBoard.getBenefici() +  newBoard.toString();
+                        String S = "ASSIGN CLIENT " + i + " to CENTRAL " + j + " HEUR "+v+" BEN " + newBoard.getBenefici();
 
-                        //System.out.println("EXTRA "+S);
-        
+                        System.out.println(S);
+
                         retVal.add(new Successor(S, newBoard));
     
                     } catch (Exception e){

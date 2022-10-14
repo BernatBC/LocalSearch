@@ -15,6 +15,7 @@ public class EnergyBoard {
     private double distance;
     private double energy;
     private double[]  energyleft;
+    static private int[][] closestCentrals;
     /**
      * Construct a new EnergyBoard, given an optional initial state, the costumers and the power plants
      *
@@ -37,9 +38,11 @@ public class EnergyBoard {
         centrales = centr;
 
         // Array que ens diu quant d'energia li queda a cada central
-        // En tot moment energy = sum(energyleft).
         energyleft = new double[n_centrales];
         Arrays.fill(energyleft, 0);
+
+        // Matriu que ens diu per cada client l'ordre de les centrals per proximitat
+        closestCentrals = new int[n_clientes][n_centrales];
 
         // Array que ens permet conèixer en tot moment quants clients es troben per cada central
         clientsXcentral = new int [n_centrales];
@@ -48,7 +51,14 @@ public class EnergyBoard {
         distance = 0.0;
         energy   = 0.0;
 
+        //double energyneeded = 0.0;
+
         for (int c = 0; c < init.length; ++c){
+
+          //  if (clientes.get(c).getContrato() == Cliente.GARANTIZADO){
+          //      energyneeded += clientes.get(c).getConsumo();
+          //  } 
+
             state[c] = init[c];
 
             distance += getDistance(c, state[c]);
@@ -69,11 +79,20 @@ public class EnergyBoard {
 
             }
         }
-            
+
+        //System.out.println(closestCentrals);
+
+        //System.out.println("TOTAL ENERGY NEEDED BY GUARANTEED COSTUMERS = "+energyneeded);
+        
+        //double energyprovided = 0.0;
+
         for (int k = 0; k < n_centrales; ++k){
 
             energyleft[k] += centrales.get(k).getProduccion();
-            energy += centrales.get(k).getProduccion();
+
+            //energyprovided += centrales.get(k).getProduccion();
+
+            if (clientsXcentral[k] != 0) energy += centrales.get(k).getProduccion();
 
             if (clientsXcentral[k] == 0){
                 benefici -= VEnergia.getCosteParada(centrales.get(k).getTipo());
@@ -81,6 +100,8 @@ public class EnergyBoard {
                 benefici -= (VEnergia.getCosteMarcha(centrales.get(k).getTipo()) + centrales.get(k).getProduccion()*VEnergia.getCosteProduccionMW(centrales.get(k).getTipo()));
             }
         }
+
+        //System.out.println("TOTAL ENERGY PROVIDED BY ALL POWER PLANTS = "+energyprovided);
     }
 
     /**
@@ -142,6 +163,8 @@ public class EnergyBoard {
             benefici -= VEnergia.getTarifaClientePenalizacion(clientes.get(c).getTipo()) * clientes.get(c).getConsumo();
             
             if (--clientsXcentral[ant] == 0){
+                energy -= centrales.get(ant).getProduccion();
+
                 benefici -= VEnergia.getCosteParada(centrales.get(ant).getTipo());
                 benefici += (VEnergia.getCosteMarcha(centrales.get(ant).getTipo()) + centrales.get(ant).getProduccion()*VEnergia.getCosteProduccionMW(centrales.get(ant).getTipo()));
             }
@@ -155,6 +178,8 @@ public class EnergyBoard {
 
             if (++clientsXcentral[k] == 1){
                 //System.out.println("Central "+k+" puesta en marcha!\n");
+                energy += centrales.get(k).getProduccion();
+
                 benefici += VEnergia.getCosteParada(centrales.get(k).getTipo());
                 benefici -= (VEnergia.getCosteMarcha(centrales.get(k).getTipo()) + centrales.get(k).getProduccion()*VEnergia.getCosteProduccionMW(centrales.get(k).getTipo()));
             }
@@ -167,11 +192,15 @@ public class EnergyBoard {
             energyleft[k]   -= (clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, k))));
             // El cliente puede estar garantizado o no
             if (--clientsXcentral[ant] == 0){
+                energy -= centrales.get(ant).getProduccion();
+
                 benefici -= VEnergia.getCosteParada(centrales.get(ant).getTipo());
                 benefici += (VEnergia.getCosteMarcha(centrales.get(ant).getTipo()) + centrales.get(ant).getProduccion()*VEnergia.getCosteProduccionMW(centrales.get(ant).getTipo()));
             }
 
             if (++clientsXcentral[k] == 1){
+                energy += centrales.get(k).getProduccion();
+
                 benefici += VEnergia.getCosteParada(centrales.get(k).getTipo());
                 benefici -= (VEnergia.getCosteMarcha(centrales.get(k).getTipo()) + centrales.get(k).getProduccion()*VEnergia.getCosteProduccionMW(centrales.get(k).getTipo()));
             }
@@ -313,11 +342,42 @@ public class EnergyBoard {
     
     public double getHeuristic(){
 
-        return distance*energy*(-benefici);
+        return -benefici;
     }
 
     public double getBenefici(){
         return benefici;
+    }
+
+    public void mergesort(int c, int l, int r, int[] arr){
+        if (l < r){
+            int m = (l+r) / 2;
+            mergesort(c, l, m, arr);
+            mergesort(c, m+1, r, arr);
+            merge(c, l, r, m, arr);
+        }
+
+    }
+
+    public void merge(int c, int l, int r, int m, int[] arr){
+        int i, j, k;
+
+        int[] B = new int[arr.length];
+
+        for (i=l; i<=r; ++i)
+            B[i] = arr[i];
+
+        i = l; j = m + 1; k = l;
+
+        while (i <= m && j <= r){
+            if (getDistance(c, i) <= getDistance(c, j))
+                arr[k++] = B[i++];
+            else 
+                arr[k++] = B[j++];
+        }                
+
+        while (i<=m)
+            arr[k++] = B[i++];
     }
 
     //Genera solució inicial on cada client garantit està assignat a una central de manera aleatòria. Els clients garantitzats no estan assignats tenen marcats central -1.
@@ -325,11 +385,23 @@ public class EnergyBoard {
 
         for (int i = 0; i < n_clientes; ++i) {
 
+            for (int k = 0; k < n_centrales; ++k) closestCentrals[i][k] = k;
+
+            // Fem el sort
+            mergesort(i, 0, n_centrales - 1, closestCentrals[i]);
+
             if (clientes.get(i).getContrato() == Cliente.GARANTIZADO){
                 
                 distance -= getDistance(i, state[i]);
 
-                state[i] = randomCentral(i, rnd);
+                int k = 0; 
+                while (!canAssign(i, closestCentrals[i][k])){
+                    ++k;
+                    if (k >= n_centrales) System.out.println("STUCK STUCK SUCK");
+                }
+
+                state[i] = closestCentrals[i][k];
+                System.out.println("ASSIGN central "+closestCentrals[i][k]+" to client "+i);
 
                 distance += getDistance(i, state[i]);
                 
@@ -337,6 +409,8 @@ public class EnergyBoard {
                 energy -= (clientes.get(i).getConsumo()/(1. - VEnergia.getPerdida(getDistance(i, state[i]))));
 
                 if (++clientsXcentral[state[i]] == 1){
+                    energy += centrales.get(state[i]).getProduccion();
+
                     benefici += VEnergia.getCosteParada(centrales.get(state[i]).getTipo());
                     benefici -= (VEnergia.getCosteMarcha(centrales.get(state[i]).getTipo()) + centrales.get(state[i]).getProduccion()*VEnergia.getCosteProduccionMW(centrales.get(state[i]).getTipo()));
                 }
@@ -347,7 +421,7 @@ public class EnergyBoard {
         }
     }
     //Genera solució inicial on cada client està assignat a una central de manera aleatòria, els clients no garantitzats tenen possibilitats de no estar assignades a cap
-    public void initialState2(Random rnd) throws Exception {
+    /*public void initialState2(Random rnd) throws Exception {
         for (int i = 0; i < n_clientes; ++i) {
             distance -= getDistance(i, state[i]);
 
@@ -358,6 +432,8 @@ public class EnergyBoard {
             energyleft[state[i]] -= (clientes.get(i).getConsumo()/(1. - VEnergia.getPerdida(getDistance(i, state[i]))));
 
             if (++clientsXcentral[state[i]] == 1){
+                energy += centrales.get(state[i]).getProduccion();
+                
                 benefici += VEnergia.getCosteParada(centrales.get(state[i]).getTipo());
                 benefici -= (VEnergia.getCosteMarcha(centrales.get(state[i]).getTipo()) + centrales.get(state[i]).getProduccion()*VEnergia.getCosteProduccionMW(centrales.get(state[i]).getTipo()));
             }
@@ -367,19 +443,27 @@ public class EnergyBoard {
 
         }
     }
-
-    //Retorna una central aleatoria on el client es pot assignar
+    
     private int randomCentral(int c, Random rnd) {
-        int k = rnd.nextInt()%n_centrales;
-        if (k < 0) k = -k;
+        int k = 0;
+        double kek = 0.0;
 
         while (!canAssign(c, k)) {
-            k = rnd.nextInt()%n_centrales;
-            if (k < 0) k = -k;
+            System.out.println("Can't assign central "+k+" to client "+c);
+            kek += energyleft[k];
+            System.out.println("Central "+k+" has "+energyleft[k]+"W but client "+c+" would consume "+clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, k))));
+            ++k;
+            if (k >= n_centrales){
+                System.out.println("STUCK STUCK STUCK STUCK ");
+                System.out.println("ENERGY LEFT BY ALL POWER PLANTS = "+kek);
+                System.out.println("LAST COSTUMER NEEDS "+clientes.get(c).getConsumo());
+            }
         }
+
+        System.out.println("ASSIGN central "+k+" with "+energyleft[k]+"W left to client "+c);
         
         return k;
-    }
+    }*/
 
     public String toString(){
         String s = "\nCENTRALES\n";

@@ -16,14 +16,14 @@ public class Main {
 
     public static void main(String[] args) throws Exception{
 
-        Random rnd = new Random(54);
+        Random rnd = new Random(76);
 
-        int n_clientes = 8;
-        int[] tipos_centrales = new int[] {1, 1, 1};
+        int n_clientes = 1000;
+        int[] tipos_centrales = new int[] {5, 10, 25};
         double[] prop_clientes = new double[] {0.25, 0.3, 0.45}; // Ha de sumar 1.0
 
         Centrales centrales = new Centrales(tipos_centrales, 1234);
-        Clientes clientes = new Clientes(n_clientes, prop_clientes, 0.5, 1234);
+        Clientes clientes = new Clientes(n_clientes, prop_clientes, 0.75, 1234);
 
         //Inicialitzar assigacions buides
         int [] initial = new int [n_clientes];
