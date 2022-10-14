@@ -4,6 +4,7 @@ import IA.Energia.EnergyBoard;
 import IA.Energia.EnergyGoalTest;
 import IA.Energia.EnergyHeuristicFunction;
 import IA.Energia.EnergySuccessorFunction;
+import IA.Energia.EnergySuccessorFunctionSA;
 import aima.search.framework.GraphSearch;
 import aima.search.framework.Problem;
 import aima.search.framework.Search;
@@ -39,12 +40,13 @@ public class Main {
 
         // Create the Problem object
         Problem p = new  Problem(board,
-                                new EnergySuccessorFunction(),
+                                //new EnergySuccessorFunction(),
+                                new EnergySuccessorFunctionSA(),
                                 new EnergyGoalTest(),
                                 new EnergyHeuristicFunction());
 
-        Search alg = new HillClimbingSearch();
-        //Search alg = new SimulatedAnnealingSearch();
+        //Search alg = new HillClimbingSearch();
+        Search alg = new SimulatedAnnealingSearch();
 
         SearchAgent agent = new SearchAgent(p, alg);
 
