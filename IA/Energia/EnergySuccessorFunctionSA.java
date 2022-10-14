@@ -17,8 +17,13 @@ public class EnergySuccessorFunctionSA implements SuccessorFunction
             //Swap
             int i = myRandom.nextInt(board.getNClients());
             int j;
+            int timeout = board.getNClients();
             do {
                 j = myRandom.nextInt(board.getNClients());
+                if (--timeout <= 0) {
+                    timeout = board.getNClients();
+                    i = myRandom.nextInt(board.getNClients());
+                }
             } while (!board.canSwap(i, j));
     
             try {
@@ -28,7 +33,7 @@ public class EnergySuccessorFunctionSA implements SuccessorFunction
 
                 double v = EHF.getHeuristicValue(newBoard);
                 //String S = "SWAP " + i + " " + j + " HEUR "+v+" BEN " + newBoard.getBenefici() + newBoard.toString();
-                String S = "SWAP " + i + " " + j + " HEUR "+v+" BEN " + newBoard.getBenefici() + newBoard.toString();
+                String S = "SWAP " + i + " " + j + " HEUR "+v+" BEN " + newBoard.getBenefici();
                 System.out.println(S);
                 retVal.add(new Successor(S, newBoard));
 
@@ -40,11 +45,15 @@ public class EnergySuccessorFunctionSA implements SuccessorFunction
             //Assign
             int c = myRandom.nextInt(board.getNClients());
             int k;
-    
+            int timeout = board.getNCentrals();
             do {
-                k = myRandom.nextInt(board.getNCentrals() + 1);
+                k = myRandom.nextInt(board.getNCentrals());
                 //Dessasginar
                 if (k == board.getNCentrals()) k = -1;
+                if (--timeout <= 0) {
+                    timeout = board.getNCentrals();
+                    k = myRandom.nextInt(board.getNCentrals());
+                }
             } while (!board.canAssign(c, k));
     
             try {
