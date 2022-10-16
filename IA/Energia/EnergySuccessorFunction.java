@@ -18,7 +18,9 @@ public class EnergySuccessorFunction implements SuccessorFunction{
                 if (!board.canSwap(i, j)) continue;
     
                 try {
-                    EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getClientes(), board.getCentrales());
+					// EnergyBoard(int[] init, double ben, double dis, double ene, double[] eleft, int[] cXk){
+                    EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getBenefici(), board.getDistance(),
+															board.getEnergy(), board.getEnergyLeft(), board.getcXk());
 
                     newBoard.swap(i, j);
     
@@ -39,7 +41,8 @@ public class EnergySuccessorFunction implements SuccessorFunction{
         for (int i = 0; i < board.getNClients(); i++){
             if (board.canAssign(i, -1)){
                 try {
-                    EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getClientes(), board.getCentrales());
+                    EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getBenefici(), board.getDistance(),
+															board.getEnergy(), board.getEnergyLeft(), board.getcXk());
                     newBoard.assign(i, -1);
                     double v = EHF.getHeuristicValue(newBoard);
                     //String S = "DEASSIGN " + i + " HEUR "+v+" BEN " + newBoard.getBenefici() + newBoard.toString();
@@ -56,7 +59,8 @@ public class EnergySuccessorFunction implements SuccessorFunction{
             for (int j = 0; j < board.getNCentrals(); ++j){
                 if (board.canAssign(i, j)){
                     try {
-                        EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getClientes(), board.getCentrales());
+						EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getBenefici(), board.getDistance(),
+															board.getEnergy(), board.getEnergyLeft(), board.getcXk());
                         newBoard.assign(i, j);
                         double v = EHF.getHeuristicValue(newBoard);
                         //String S = "ASSIGN CLIENT " + i + " to CENTRAL " + j + " HEUR "+v+" BEN " + newBoard.getBenefici() +  newBoard.toString();

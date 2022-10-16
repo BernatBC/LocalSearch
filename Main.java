@@ -40,13 +40,13 @@ public class Main {
 
         // Create the Problem object
         Problem p = new  Problem(board,
-                                //new EnergySuccessorFunction(),
-                                new EnergySuccessorFunctionSA(),
+                                new EnergySuccessorFunction(),
+                                //new EnergySuccessorFunctionSA(),
                                 new EnergyGoalTest(),
                                 new EnergyHeuristicFunction());
 
-        //Search alg = new HillClimbingSearch();
-        Search alg = new SimulatedAnnealingSearch();
+        Search alg = new HillClimbingSearch();
+        //Search alg = new SimulatedAnnealingSearch();
 
         SearchAgent agent = new SearchAgent(p, alg);
 

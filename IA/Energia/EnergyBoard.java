@@ -16,6 +16,19 @@ public class EnergyBoard {
     private double energy;
     private double[]  energyleft;
     static private int[][] closestCentrals;
+    
+    
+    
+	public EnergyBoard(int[] init, double ben, double dis, double ene, double[] eleft, int[] cXk){
+		state = init.clone();
+		energyleft = eleft.clone();
+		clientsXcentral = cXk.clone();
+		benefici = ben;
+		distance = dis;
+		energy = ene;
+	}
+    
+    
     /**
      * Construct a new EnergyBoard, given an optional initial state, the costumers and the power plants
      *
@@ -135,6 +148,22 @@ public class EnergyBoard {
     public static Centrales getCentrales(){
         return (Centrales) centrales.clone();
     }
+    
+    public int[] getcXk(){
+		return clientsXcentral.clone();
+	}
+	
+	public double getDistance(){
+		return distance;
+	}
+	
+	public double getEnergy(){
+		return energy;
+	}
+	
+	public double[] getEnergyLeft(){
+		return energyleft.clone();
+	}
 
     /**
      * Assign (or deassign) a power plant to a costumer
@@ -342,7 +371,7 @@ public class EnergyBoard {
     
     public double getHeuristic(){
 
-        return -benefici;
+        return distance*Math.log(distance) + energy;
     }
 
     public double getBenefici(){
