@@ -26,7 +26,7 @@ public class EnergySuccessorFunctionSA implements SuccessorFunction
             if (--timeout <= 0) {
                 timeout = board.getNClients();
                 i = myRandom.nextInt(board.getNClients());
-                if (--timeout2 <= 0) assign(board, EHF, myRandom);
+                if (--timeout2 <= 0) return assign(board, EHF, myRandom);
             }
         } while (!board.canSwap(i, j));
     
@@ -60,7 +60,7 @@ public class EnergySuccessorFunctionSA implements SuccessorFunction
             if (--timeout <= 0) {
                 timeout = board.getNCentrals();
                 k = myRandom.nextInt(board.getNCentrals());
-                if (--timeout2 <= 0) swap(board, EHF, myRandom);
+                if (--timeout2 <= 0) return swap(board, EHF, myRandom);
             }
         } while (!board.canAssign(c, k));
     
