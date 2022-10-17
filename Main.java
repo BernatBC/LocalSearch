@@ -34,7 +34,7 @@ public class Main {
 
         //Inicialitzar solucions amb dues possibles estrategies
         System.out.println("----- ESTAT INICIAL ------");
-        board.initialState(rnd);
+        board.initialState2(rnd);
         System.out.println(board);
         System.out.println("\n--- FI ESTAT INICIAL ---");
 

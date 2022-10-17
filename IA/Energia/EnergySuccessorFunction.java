@@ -20,7 +20,7 @@ public class EnergySuccessorFunction implements SuccessorFunction{
                 try {
 					// EnergyBoard(int[] init, double ben, double dis, double ene, double[] eleft, int[] cXk){
                     EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getBenefici(), board.getDistance(),
-															board.getEnergy(), board.getEnergyLeft(), board.getcXk());
+															board.getEnergy(), board.getEnergyLeft(), board.getcXk(), board.getNAG());
 
                     newBoard.swap(i, j);
     
@@ -28,7 +28,7 @@ public class EnergySuccessorFunction implements SuccessorFunction{
                     //String S = "SWAP " + i + " " + j + " HEUR "+v+" BEN " + newBoard.getBenefici() + newBoard.toString();
                     String S = "SWAP " + i + " " + j + " HEUR "+v+" BEN " + newBoard.getBenefici();
 
-                    System.out.println(S);
+                    //System.out.println(S);
 
                     retVal.add(new Successor(S, newBoard));
     
@@ -42,12 +42,12 @@ public class EnergySuccessorFunction implements SuccessorFunction{
             if (board.canAssign(i, -1)){
                 try {
                     EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getBenefici(), board.getDistance(),
-															board.getEnergy(), board.getEnergyLeft(), board.getcXk());
+															board.getEnergy(), board.getEnergyLeft(), board.getcXk(), board.getNAG());
                     newBoard.assign(i, -1);
                     double v = EHF.getHeuristicValue(newBoard);
                     //String S = "DEASSIGN " + i + " HEUR "+v+" BEN " + newBoard.getBenefici() + newBoard.toString();
                     String S = "DEASSIGN " + i + " HEUR "+v+" BEN " + newBoard.getBenefici();
-                    System.out.println(S);
+                    //System.out.println(S);
 
                     retVal.add(new Successor(S, newBoard));
     
@@ -60,13 +60,13 @@ public class EnergySuccessorFunction implements SuccessorFunction{
                 if (board.canAssign(i, j)){
                     try {
 						EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getBenefici(), board.getDistance(),
-															board.getEnergy(), board.getEnergyLeft(), board.getcXk());
+															board.getEnergy(), board.getEnergyLeft(), board.getcXk(), board.getNAG());
                         newBoard.assign(i, j);
                         double v = EHF.getHeuristicValue(newBoard);
                         //String S = "ASSIGN CLIENT " + i + " to CENTRAL " + j + " HEUR "+v+" BEN " + newBoard.getBenefici() +  newBoard.toString();
                         String S = "ASSIGN CLIENT " + i + " to CENTRAL " + j + " HEUR "+v+" BEN " + newBoard.getBenefici();
 
-                        System.out.println(S);
+                        //System.out.println(S);
 
                         retVal.add(new Successor(S, newBoard));
     
