@@ -194,6 +194,8 @@ public class EnergyBoard {
             }
         } 
         else if (ant == -1) {
+            if (clientes.get(c).getContrato() == Cliente.GARANTIZADO) --nonAssignedG;
+
             energy -= (clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, k))));
             energyleft[k] -= (clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, k))));
 
@@ -310,7 +312,7 @@ public class EnergyBoard {
     public void swap(int c1, int c2) throws Exception {
         // El client c1 passarà a tenir la central de c2 i el client c2 passarà a tenir la central del client c1
         // És possible que c1 o c2 no tinguin central, pero almenys una n'ha de tenir
-        // central de c1 != central de c2,   s'han de seguir complint totes les restriccions de les solucions
+        // central de c1 != central de c2, s'han de seguir complint totes les restriccions de les solucions
 
         int k1 = state[c1];
         int k2 = state[c2];
@@ -335,6 +337,8 @@ public class EnergyBoard {
         }
 
         else if (k1 == -1){
+            if (clientes.get(c1).getContrato() == Cliente.GARANTIZADO) --nonAssignedG;
+
             energy += (clientes.get(c2).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c2, k2))));
             energyleft[k2] += (clientes.get(c2).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c2, k2))));
             energy -= (clientes.get(c1).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c1, k2))));
@@ -348,6 +352,7 @@ public class EnergyBoard {
         }
 
         else {
+            if (clientes.get(c2).getContrato() == Cliente.GARANTIZADO) --nonAssignedG;
             // k2 == -1
             energy += (clientes.get(c1).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c1, k1))));
             energyleft[k1] += (clientes.get(c1).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c1, k1))));
