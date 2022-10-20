@@ -430,7 +430,7 @@ public class EnergyBoard {
                 }
 
                 state[i] = closestCentrals[i][k];
-                System.out.println("ASSIGN central "+closestCentrals[i][k]+" to client "+i);
+                //System.out.println("ASSIGN central "+closestCentrals[i][k]+" to client "+i);
 
                 distance += getDistance(i, state[i]);
                 

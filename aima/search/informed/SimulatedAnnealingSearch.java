@@ -28,7 +28,7 @@ public class SimulatedAnnealingSearch extends NodeExpander implements Search {
     private Scheduler scheduler;
 
     public SimulatedAnnealingSearch() {
-        this.steps = 10000;
+        this.steps = 1000000;
         this.scheduler = new Scheduler();
     }
 

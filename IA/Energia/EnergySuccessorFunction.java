@@ -37,9 +37,9 @@ public class EnergySuccessorFunction implements SuccessorFunction{
                 }    
             } 
         }
-    
+
         for (int i = 0; i < board.getNClients(); i++){
-            if (board.canAssign(i, -1)){
+            /*if (board.canAssign(i, -1)){
                 try {
                     EnergyBoard newBoard = new EnergyBoard(board.getState(), board.getBenefici(), board.getDistance(),
 															board.getEnergy(), board.getEnergyLeft(), board.getcXk(), board.getNAG());
@@ -54,7 +54,7 @@ public class EnergySuccessorFunction implements SuccessorFunction{
                 } catch (Exception e){
                     System.out.println(e);
                 }
-            }
+            }*/
     
             for (int j = 0; j < board.getNCentrals(); ++j){
                 if (board.canAssign(i, j)){
