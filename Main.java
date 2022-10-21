@@ -23,8 +23,8 @@ public class Main {
         int[] tipos_centrales = new int[] {5, 10, 25};
         double[] prop_clientes = new double[] {0.25, 0.3, 0.45}; // Ha de sumar 1.0
 
-        Centrales centrales = new Centrales(tipos_centrales, rnd.nextInt());
-        Clientes clientes = new Clientes(n_clientes, prop_clientes, 0.75, rnd.nextInt());
+        Centrales centrales = new Centrales(tipos_centrales, 1234);
+        Clientes clientes = new Clientes(n_clientes, prop_clientes, 0.75, 1234);
 
         //Inicialitzar assigacions buides
         int [] initial = new int [n_clientes];
@@ -34,19 +34,19 @@ public class Main {
 
         //Inicialitzar solucions amb dues possibles estrategies
         System.out.println("----- ESTAT INICIAL ------");
-        board.initialState2(rnd);
+        board.initialState(rnd);
         System.out.println(board);
         System.out.println("\n--- FI ESTAT INICIAL ---");
 
         // Create the Problem object
         Problem p = new  Problem(board,
-                                //new EnergySuccessorFunction(),
-                                new EnergySuccessorFunctionSA(),
+                                new EnergySuccessorFunction(),
+                                //new EnergySuccessorFunctionSA(),
                                 new EnergyGoalTest(),
                                 new EnergyHeuristicFunction());
 
-        //Search alg = new HillClimbingSearch();
-        Search alg = new SimulatedAnnealingSearch();
+        Search alg = new HillClimbingSearch();
+        //Search alg = new SimulatedAnnealingSearch();
 
         SearchAgent agent = new SearchAgent(p, alg);
 
