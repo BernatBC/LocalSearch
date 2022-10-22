@@ -1,0 +1,24 @@
+Práctica Búsqueda Local IA ~ FIB UPC
+Alexandre Ros i Roger, Bernat Borràs Civil, Oscar Ramos Núñez
+
+Para ejecutar el código, hemos diseñado un Makefile para compilar y limpiar binarios:
+
+* 'make' compilará todos los ficheros *.java necesarios. Ignore los posibles warnings de Java.
+
+* 'java Main' ejecutará una ejecución. Por defecto usa Hill Climbing, el estado inicial por distancias y sin el operador DEASSIGN (ver detalles en el informe)
+Además por defecto ejecuta el experimento 1 de la práctica. 
+
+Desde el Main.java se puede descomentar y comentar las opciones para HC vs SA y para las dos funciones generadoras de estados iniciales.
+
+* 'make clean' eliminará todos los ficheros generados durante la compilación
+
+Al ejecutar la práctica, ud. verá en pantalla que se imprimirá el estado inicial.
+Verá primero las centrales con sus coordenadas y propiedades, y luego los clientes con sus coordenadas y propiedades.
+
+Finalmente verá, cuando acabe la ejecución, el estado final detallado con su heurístico (HEUR) y el beneficio final (BEN).
+
+Se puede editar el número de centrales, proporciones, número de clientes, semillas aleatorias, y demás desde el Main.java
+
+En el informe.pdf usted tiene nuestro informe, y en experimentacio.ods nuestras hojas de cálculo que hemos usado para los experimentos del 1 al 6
+
+

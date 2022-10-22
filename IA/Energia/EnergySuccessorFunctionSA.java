@@ -38,7 +38,7 @@ public class EnergySuccessorFunctionSA implements SuccessorFunction
             double v = EHF.getHeuristicValue(newBoard);
             //String S = "SWAP " + i + " " + j + " HEUR "+v+" BEN " + newBoard.getBenefici() + newBoard.toString();
             String S = "SWAP " + i + " " + j + " HEUR "+v+" BEN " + newBoard.getBenefici();
-            System.out.println(S);
+            //System.out.println(S);
             retVal.add(new Successor(S, newBoard));
 
         } catch (Exception e){
@@ -70,7 +70,7 @@ public class EnergySuccessorFunctionSA implements SuccessorFunction
             double v = EHF.getHeuristicValue(newBoard);
             //String S = "ASSIGN CLIENT " + c + " to CENTRAL " + k + " HEUR "+v+" BEN " + newBoard.getBenefici() +  newBoard.toString();
             String S = "ASSIGN CLIENT " + c + " to CENTRAL " + k + " HEUR "+v+" BEN " + newBoard.getBenefici();
-            System.out.println(S);
+            //System.out.println(S);
 
             retVal.add(new Successor(S, newBoard));
 

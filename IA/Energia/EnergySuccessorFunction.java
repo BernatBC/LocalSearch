@@ -28,7 +28,7 @@ public class EnergySuccessorFunction implements SuccessorFunction{
                     //String S = "SWAP " + i + " " + j + " HEUR "+v+" BEN " + newBoard.getBenefici() + newBoard.toString();
                     String S = "SWAP " + i + " " + j + " HEUR "+v+" BEN " + newBoard.getBenefici();
 
-                    System.out.println(S);
+                    //System.out.println(S);
 
                     retVal.add(new Successor(S, newBoard));
     
@@ -66,7 +66,7 @@ public class EnergySuccessorFunction implements SuccessorFunction{
                         //String S = "ASSIGN CLIENT " + i + " to CENTRAL " + j + " HEUR "+v+" BEN " + newBoard.getBenefici() +  newBoard.toString();
                         String S = "ASSIGN CLIENT " + i + " to CENTRAL " + j + " HEUR "+v+" BEN " + newBoard.getBenefici();
 
-                        System.out.println(S);
+                        //System.out.println(S);
 
                         retVal.add(new Successor(S, newBoard));
     

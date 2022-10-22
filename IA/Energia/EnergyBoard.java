@@ -515,12 +515,12 @@ public class EnergyBoard {
             s += clientes.get(c).getCoordX()+", "+clientes.get(c).getCoordY()+")";
             s += " tiene K " + state[c] + " y es ";
 
-            if (clientes.get(c).getContrato() == Cliente.GARANTIZADO) s += " G. ";
-            else s += " NG.";
+            if (clientes.get(c).getContrato() == Cliente.GARANTIZADO) s += " Gar. ";
+            else s += " No G.";
 
             s += " DE TIPO " + clientes.get(c).getTipo();
             s += " CONSUME " + clientes.get(c).getConsumo()+"W";
-            if (state[c] != -1) s += " Y CHUPA " + clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, state[c])))+"W";
+            if (state[c] != -1) s += " Y QUITA " + clientes.get(c).getConsumo()/(1. - VEnergia.getPerdida(getDistance(c, state[c])))+"W";
 
             s += "\n";
         }
